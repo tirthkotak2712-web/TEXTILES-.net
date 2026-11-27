@@ -1,35 +1,34 @@
-<%@ Page Title="Admin Panel"
-    Language="C#"
-    AutoEventWireup="true"
-    CodeBehind="admin.aspx.cs"
-    Inherits="textiles.admin" %>
-
+<%@ Page Title="Admin Panel" Language="C#" AutoEventWireup="true" CodeBehind="admin.aspx.cs" Inherits="textiles.admin" ResponseEncoding="utf-8" %>
 <!DOCTYPE html>
 <html lang="en">
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Panel - Online Clothing Store</title>
+    <title>TEXTILES Admin Panel - Men's Clothing Store Management</title>
 
     <!-- Google Fonts & Font Awesome 6 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
     <style>
         :root {
-            --primary-blue: #1565c0;
-            --primary-blue-dark: #0d47a1;
-            --primary-blue-light: #1976d2;
-            --active-nav-bg: rgba(255, 255, 255, 0.18);
-            --bg-gray: #f4f6f9;
+            --primary: #1565c0;
+            --primary-dark: #0d47a1;
+            --primary-light: #e3f2fd;
+            --primary-border: #90caf9;
+            --primary-gradient: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            --sidebar-bg: #1565c0;
+            --main-bg: #f0f7ff;
             --card-bg: #ffffff;
-            --text-dark: #212529;
-            --text-muted: #6c757d;
-            --border-color: #e9ecef;
-            --border-light: #dee2e6;
-            --border-radius: 6px;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-light: #dbeafe;
+            --radius-card: 16px;
+            --radius-pill: 12px;
+            --shadow-subtle: 0 4px 20px rgba(21, 101, 192, 0.05);
+            --shadow-hover: 0 10px 25px -5px rgba(21, 101, 192, 0.1);
         }
 
         * {
@@ -39,24 +38,23 @@
         }
 
         body {
-            font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-gray);
-            color: var(--text-dark);
+            font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-main);
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Full layout */
-        .admin-wrapper {
+        .admin-layout {
             display: flex;
             min-height: 100vh;
         }
 
         /* ================= SIDEBAR ================= */
         .admin-sidebar {
-            width: 220px;
-            background-color: var(--primary-blue);
-            color: #ffffff;
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -64,498 +62,942 @@
             top: 0;
             bottom: 0;
             z-index: 1000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            scrollbar-width: thin;
         }
 
-        .sidebar-header {
-            padding: 24px 20px 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        .admin-sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .admin-sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
         }
 
-        .sidebar-logo-box {
-            width: 52px;
-            height: 52px;
+        /* Brand Header */
+        .sidebar-brand {
+            padding: 24px 20px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .sidebar-brand-icon {
+            width: 42px;
+            height: 42px;
             background: #ffffff;
-            border-radius: 8px;
-            margin: 0 auto 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #1e293b;
-            font-size: 24px;
+            color: var(--primary);
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar-brand-title {
+            font-size: 21px;
             font-weight: 800;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        .sidebar-header-title {
-            font-size: 13px;
-            font-weight: 500;
             color: #ffffff;
-            opacity: 0.95;
-            letter-spacing: 0.3px;
+            letter-spacing: -0.5px;
         }
 
-        .sidebar-menu {
+        /* Profile Card */
+        .sidebar-profile {
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-pill);
+            padding: 10px 14px;
+            margin: 12px 14px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #ffffff;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .sidebar-profile-info {
+            overflow: hidden;
+        }
+
+        .sidebar-profile-name {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .sidebar-profile-role {
+            font-size: 11px;
+            color: #bfdbfe;
+        }
+
+        /* Menu Groups */
+        .sidebar-nav {
             list-style: none;
-            padding: 14px 0;
+            padding: 0 0 20px;
             flex: 1;
         }
 
-        .sidebar-menu li {
-            margin-bottom: 2px;
+        .nav-category {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.8px;
+            color: #bfdbfe;
+            padding: 16px 20px 6px;
+            text-transform: uppercase;
         }
 
-        .sidebar-menu a {
-            display: block;
-            padding: 12px 24px;
-            color: #ffffff;
+        .sidebar-nav li {
+            margin: 2px 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9.5px 16px;
+            margin: 2px 14px;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.9);
             text-decoration: none;
-            font-size: 14.5px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.15s ease, opacity 0.15s ease;
-            opacity: 0.9;
-        }
-
-        .sidebar-menu a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            opacity: 1;
-        }
-
-        .sidebar-menu a.active {
-            background-color: var(--active-nav-bg);
+            font-size: 13px;
             font-weight: 600;
-            opacity: 1;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .sidebar-nav a i {
+            width: 18px;
+            text-align: center;
+            font-size: 14px;
+            color: #bfdbfe;
+            transition: color 0.15s ease;
+        }
+
+        .sidebar-nav a:hover {
+            background-color: rgba(255, 255, 255, 0.16);
+            color: #ffffff;
+        }
+
+        .sidebar-nav a:hover i {
+            color: #ffffff;
+        }
+
+        .sidebar-nav a.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            font-weight: 700;
+        }
+
+        .sidebar-nav a.active i {
+            color: var(--primary);
+        }
+
+        .nav-badge-orange {
+            margin-left: auto;
+            background: #ffedd5;
+            color: #c2410c;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 10px;
         }
 
         .sidebar-footer {
-            padding: 16px 24px;
-            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 14px 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         .sidebar-footer a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             color: #ffffff;
+            background: rgba(239, 68, 68, 0.85);
+            font-size: 13px;
+            font-weight: 700;
             text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            opacity: 0.85;
-            display: block;
-            transition: opacity 0.15s ease;
+            padding: 10px 14px;
+            border-radius: 10px;
+            transition: background 0.15s;
         }
 
         .sidebar-footer a:hover {
-            opacity: 1;
+            background: #dc2626;
+            color: #ffffff;
         }
 
-        /* ================= MAIN CONTAINER ================= */
+        .input-error {
+            border-color: #ef4444 !important;
+            background-color: #fef2f2 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        .validation-error-banner {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 700;
+            margin-bottom: 18px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ================= MAIN CONTENT ================= */
         .admin-main {
-            margin-left: 220px;
+            margin-left: 250px;
             flex: 1;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
-        /* Blue Topbar */
-        .admin-topbar {
-            height: 60px;
-            background-color: var(--primary-blue);
-            color: #ffffff;
+        /* Top Header */
+        .admin-header {
+            padding: 24px 32px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title-box h1 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.2px;
+        }
+
+        .header-title-box p {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .header-right {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 32px;
-            position: sticky;
-            top: 0;
-            z-index: 999;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+            gap: 18px;
         }
 
-        .admin-topbar h1 {
-            font-size: 18px;
+        .header-bell {
+            color: #64748b;
+            font-size: 16px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .header-bell::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 6px;
+            height: 6px;
+            background: #ef4444;
+            border-radius: 50%;
+        }
+
+        .header-welcome {
+            font-size: 13px;
             font-weight: 600;
-            color: #ffffff;
-            letter-spacing: 0.2px;
+            color: #475569;
         }
 
-        /* Content Area */
-        .admin-content {
-            padding: 24px 32px 60px;
+        /* Content Container */
+        .admin-content-area {
+            padding: 0 32px 60px;
             flex: 1;
         }
 
         .admin-view {
             display: none;
+            animation: fadeIn 0.2s ease-in-out;
         }
 
         .admin-view.active {
             display: block;
         }
 
-        /* ================= STAT CARDS WITH TOP ACCENTS ================= */
-        .stat-cards-grid {
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .view-page-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.4px;
+        }
+
+        .view-page-title i {
+            color: var(--primary);
+        }
+
+        /* Alert Toast */
+        .admin-alert-banner {
+            display: block;
+            padding: 12px 18px;
+            border-radius: 12px;
+            margin-bottom: 22px;
+            font-size: 13.5px;
+            font-weight: 600;
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        /* ================= 6 STAT CARDS (IMAGE 1) ================= */
+        .stat-cards-six-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        @media (max-width: 1200px) {
+            .stat-cards-six-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .stat-card-clean {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: 22px 24px;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .stat-card-clean:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-card-num {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-card-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        .stat-card-squircle {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            background: var(--primary-gradient);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
+        }
+
+        .stat-card-squircle.currency {
+            font-family: inherit;
+            font-weight: 800;
+            font-size: 20px;
+        }
+
+        /* ================= WHITE CARDS & TABLES ================= */
+        .white-box-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            padding: 24px 26px;
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid #f1f5f9;
             margin-bottom: 24px;
         }
 
-        .stat-card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 22px 24px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-            border: 1px solid #edf2f7;
-            border-top: 4px solid var(--card-accent, #1976d2);
+        .card-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
-        .stat-card.blue { --card-accent: #1976d2; }
-        .stat-card.green { --card-accent: #2e7d32; }
-        .stat-card.orange { --card-accent: #e65100; }
-        .stat-card.purple { --card-accent: #7b1fa2; }
-        .stat-card.teal { --card-accent: #00897b; }
-        .stat-card.red { --card-accent: #d32f2f; }
-
-        .stat-card .stat-number {
-            font-size: 30px;
-            font-weight: 700;
-            line-height: 1.1;
-            margin-bottom: 8px;
-        }
-
-        .stat-card.blue .stat-number { color: #1976d2; }
-        .stat-card.green .stat-number { color: #2e7d32; }
-        .stat-card.orange .stat-number { color: #e65100; }
-        .stat-card.purple .stat-number { color: #7b1fa2; }
-        .stat-card.teal .stat-number { color: #00897b; }
-        .stat-card.red .stat-number { color: #d32f2f; }
-
-        .stat-card .stat-title {
-            font-size: 13.5px;
-            font-weight: 500;
-            color: var(--text-muted);
-        }
-
-        .stat-card .stat-subtitle {
-            font-size: 11.5px;
-            color: #94a3b8;
-            margin-top: 4px;
-        }
-
-        /* ================= DASHBOARD TWO COLUMN ================= */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-        }
-
-        .white-card {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            padding: 22px 24px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-            border: 1px solid #edf2f7;
-        }
-
-        .card-heading {
+        .card-header-title {
             font-size: 16px;
             font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 18px;
-        }
-
-        /* Recent Orders List Items */
-        .recent-order-item {
+            color: #1e293b;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color 0.15s ease;
+            gap: 8px;
         }
 
-        .recent-order-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+        .card-header-title i {
+            color: var(--primary);
         }
 
-        .recent-order-left .order-id {
-            font-size: 14px;
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 2px;
-        }
-
-        .recent-order-left .cust-name {
-            font-size: 12.5px;
-            color: var(--text-muted);
-        }
-
-        .recent-order-right {
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 4px;
-        }
-
-        .recent-order-right .order-price {
-            font-size: 14px;
-            font-weight: 700;
-            color: #1565c0;
-        }
-
-        .order-status-text {
+        .btn-view-all-pill {
+            background: var(--primary-gradient);
+            color: #ffffff !important;
+            padding: 7px 18px;
+            border-radius: 20px;
             font-size: 12px;
-            font-weight: 600;
-        }
-
-        .order-status-text.delivered { color: #2e7d32; }
-        .order-status-text.shipped { color: #1565c0; }
-        .order-status-text.processing { color: #e65100; }
-        .order-status-text.pending { color: #0284c7; }
-
-        .btn-quick-manage {
-            background: #e3f2fd;
-            border: 1px solid #bbdefb;
-            color: #1565c0;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .btn-quick-manage:hover {
-            background: #1565c0;
-            color: #ffffff;
-        }
-
-        /* Products Overview List */
-        .product-overview-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .product-overview-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .product-overview-thumb {
-            width: 44px;
-            height: 44px;
-            border-radius: 4px;
-            object-fit: cover;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-        }
-
-        .product-overview-details {
-            flex: 1;
-        }
-
-        .product-overview-title {
-            font-size: 13.5px;
-            font-weight: 600;
-            color: #0f172a;
-            margin-bottom: 2px;
-        }
-
-        .product-overview-price {
-            font-size: 13px;
-            font-weight: 600;
-            color: #1565c0;
-        }
-
-        .product-overview-stock {
-            font-size: 12.5px;
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        /* ================= BLUE HEADER DATA TABLES ================= */
-        .table-action-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .table-counter-text {
-            font-size: 14px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        .btn-add-primary {
-            background-color: var(--primary-blue);
-            color: #ffffff;
-            border: none;
-            padding: 9px 20px;
-            border-radius: 4px;
-            font-size: 13.5px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.15s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            font-weight: 700;
             text-decoration: none;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+            transition: opacity 0.15s;
         }
 
-        .btn-add-primary:hover {
-            background-color: var(--primary-blue-dark);
-            color: #ffffff;
+        .btn-view-all-pill:hover {
+            opacity: 0.92;
         }
 
-        .blue-header-table-wrapper {
-            background: var(--card-bg);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-            border: 1px solid #edf2f7;
+        /* Clean Table */
+        .clean-table-responsive {
+            width: 100%;
+            overflow-x: auto;
         }
 
-        .blue-table {
+        .clean-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13.5px;
+        }
+
+        .clean-table th {
             text-align: left;
+            padding: 12px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+            border-bottom: 1px solid #e2e8f0;
+            background: #fafbfd;
         }
 
-        .blue-table th {
-            background-color: var(--primary-blue);
-            color: #ffffff;
-            font-weight: 600;
-            font-size: 13.5px;
-            padding: 13px 18px;
-            border: none;
-            letter-spacing: 0.2px;
-        }
-
-        .blue-table td {
-            padding: 12px 18px;
-            border-bottom: 1px solid #edf2f7;
-            color: var(--text-dark);
+        .clean-table td {
+            padding: 14px;
+            border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
-            background: #ffffff;
+            color: var(--text-main);
         }
 
-        .blue-table tr:last-child td {
-            border-bottom: none;
+        .clean-table tr:hover td {
+            background-color: #f8fafc;
         }
 
-        .blue-table tr:hover td {
-            background-color: #fafbfc;
+        .table-id-bold {
+            font-weight: 800;
+            color: var(--text-main);
         }
 
-        .table-product-thumb {
-            width: 44px;
-            height: 44px;
-            border-radius: 4px;
-            object-fit: cover;
-            border: 1px solid #e2e8f0;
-            background: #f8fafc;
-            display: block;
+        .table-cust-name {
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .table-cust-sub {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 1px;
         }
 
         .table-price-bold {
-            color: #1565c0;
-            font-weight: 700;
+            font-weight: 800;
+            color: #1e293b;
         }
 
-        /* Action Buttons */
-        .btn-action-edit {
-            border: 1px solid #1976d2;
-            color: #1976d2;
-            background: #ffffff;
-            padding: 5px 16px;
-            border-radius: 4px;
-            font-size: 12.5px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.15s ease;
-        }
-
-        .btn-action-edit:hover {
-            background: #e3f2fd;
-        }
-
-        .btn-action-delete {
-            border: 1px solid #fca5a5;
-            color: #ef4444;
-            background: #ffffff;
-            padding: 5px 16px;
-            border-radius: 4px;
-            font-size: 12.5px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.15s ease;
-        }
-
-        .btn-action-delete:hover {
-            background: #fee2e2;
-        }
-
-        .btn-action-view {
-            background-color: var(--primary-blue);
-            color: #ffffff;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 4px;
-            font-size: 12.5px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: background 0.15s ease;
-        }
-
-        .btn-action-view:hover {
-            background-color: var(--primary-blue-dark);
-            color: #ffffff;
-        }
-
-        /* Soft Pill Status Badges */
-        .status-pill {
+        /* Soft Status Pills */
+        .status-badge {
             display: inline-block;
             padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
         }
 
-        .status-pill.delivered { background: #e8f5e9; color: #2e7d32; }
-        .status-pill.shipped { background: #e3f2fd; color: #1565c0; }
-        .status-pill.processing { background: #fff3e0; color: #e65100; }
-        .status-pill.pending { background: #f1f5f9; color: #475569; }
-        .status-pill.cancelled { background: #fee2e2; color: #dc2626; }
+        .status-badge.pending {
+            background: #ffedd5;
+            color: #c2410c;
+        }
 
-        /* ================= MODAL & FORM VALIDATION ================= */
+        .status-badge.processing {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .status-badge.shipped {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .status-badge.completed {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-badge.cancelled {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .status-badge.cod {
+            background: #dcfce7;
+            color: #166534;
+            font-weight: 800;
+        }
+
+        .badge-return {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+        .badge-return.return-pending {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+        .badge-return.return-approved {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .badge-return.return-rejected {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+        .badge-return.return-completed {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        /* Action Dropdown inside table */
+        .table-action-select {
+            padding: 5px 10px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #334155;
+            outline: none;
+            cursor: pointer;
+            transition: border 0.15s;
+        }
+
+        .table-action-select:focus {
+            border-color: var(--primary);
+        }
+
+        /* ================= ADD PRODUCT FORM (IMAGE 2) ================= */
+        .form-grid-three {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        .form-grid-two {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 18px;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid-three, .form-grid-two {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .form-group label .req {
+            color: #ef4444;
+        }
+
+        .form-control-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-family: inherit;
+            color: var(--text-main);
+            background: #ffffff;
+            outline: none;
+            transition: border 0.15s, box-shadow 0.15s;
+        }
+
+        .form-control-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        textarea.form-control-input {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        /* Size-wise Stock Input Sub-card */
+        .size-stock-input-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-top: 14px;
+            margin-bottom: 22px;
+        }
+
+        .size-stock-input-box h3 {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+
+        .size-stock-inputs-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 14px;
+        }
+
+        .size-stock-col {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .size-stock-col label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #64748b;
+        }
+
+        .btn-submit-green {
+            background: #10b981;
+            color: #ffffff;
+            font-size: 13.5px;
+            font-weight: 700;
+            padding: 10px 22px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.15s;
+        }
+
+        .btn-submit-green:hover {
+            opacity: 0.92;
+        }
+
+        /* ================= MANAGE PRODUCTS CARDS GRID (IMAGE 3) ================= */
+        .products-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 22px;
+        }
+
+        @media (max-width: 1100px) {
+            .products-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        @media (max-width: 700px) {
+            .products-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .prod-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            border: 1px solid #edf2f7;
+            box-shadow: var(--shadow-subtle);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .prod-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .prod-card-thumb {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+            background: #f1f5f9;
+        }
+
+        .prod-card-body {
+            padding: 16px 18px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prod-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+
+        .prod-card-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .size-badges-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .size-badge-pill {
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid #dbeafe;
+        }
+
+        .stock-total-badge {
+            background: #ecfdf5;
+            color: #047857;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 8px;
+            width: fit-content;
+        }
+
+        .prod-card-rating {
+            color: #f59e0b;
+            font-size: 12.5px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .prod-card-rating span {
+            color: #64748b;
+            font-weight: 500;
+            font-size: 11.5px;
+        }
+
+        .prod-card-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .btn-card-details {
+            background: var(--primary);
+            color: #ffffff !important;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .select-card-status {
+            padding: 5px 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+            background: #ffffff;
+            cursor: pointer;
+        }
+
+        .btn-card-delete {
+            margin-left: auto;
+            background: #ef4444;
+            color: #ffffff !important;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* ================= SIZE-WISE STOCK CARDS (IMAGE 4) ================= */
+        .stock-manage-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-card);
+            border: 1px solid #edf2f7;
+            box-shadow: var(--shadow-subtle);
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .stock-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .stock-card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .stock-card-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .stock-card-total-pill {
+            background: #eff6ff;
+            color: var(--primary);
+            font-size: 11.5px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--primary-border);
+        }
+
+        .stock-section-title {
+            font-size: 10.5px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .stock-adjust-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .stock-select-size {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 12px;
+            font-weight: 600;
+            color: #334155;
+            background: #ffffff;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .stock-input-qty {
+            width: 50px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 12.5px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .btn-stock-add {
+            background: #10b981;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-stock-remove {
+            background: #f59e0b;
+            color: #ffffff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Modal Styles */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.5);
             display: none;
             align-items: center;
             justify-content: center;
             z-index: 2000;
-            backdrop-filter: blur(2px);
+            padding: 20px;
         }
 
         .modal-overlay.open {
@@ -564,948 +1006,1240 @@
 
         .modal-box {
             background: #ffffff;
-            border-radius: 8px;
+            border-radius: 16px;
             width: 100%;
-            max-width: 640px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            animation: modalFadeIn 0.2s ease-out;
-        }
-
-        @keyframes modalFadeIn {
-            from { transform: translateY(-15px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            max-width: 580px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
 
         .modal-header {
-            background: var(--primary-blue);
-            color: #ffffff;
-            padding: 16px 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 18px;
         }
 
-        .modal-header h3 {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .modal-close-btn {
-            background: transparent;
+        .modal-close {
+            background: none;
             border: none;
-            color: #ffffff;
             font-size: 20px;
+            color: #94a3b8;
             cursor: pointer;
-            opacity: 0.85;
-            transition: opacity 0.15s;
-        }
-
-        .modal-close-btn:hover {
-            opacity: 1;
-        }
-
-        .modal-body {
-            padding: 24px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .form-row-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 14px;
-        }
-
-        .form-group-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-bottom: 14px;
-        }
-
-        .form-group-item label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #334155;
-        }
-
-        .form-input-ctrl {
-            border: 1px solid #cbd5e1;
-            background: #ffffff;
-            border-radius: 4px;
-            padding: 9px 12px;
-            font-size: 13.5px;
-            color: #1e293b;
-            font-family: inherit;
-            outline: none;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .form-input-ctrl:focus {
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
-        }
-
-        .form-input-ctrl.input-error {
-            border-color: #dc2626 !important;
-            background-color: #fef2f2 !important;
-        }
-
-        .field-validation-error {
-            color: #dc2626;
-            font-size: 11.5px;
-            font-weight: 500;
-            display: none;
-            margin-top: 2px;
-        }
-
-        .field-validation-error.show {
-            display: block;
-        }
-
-        .modal-footer {
-            padding: 16px 24px;
-            background: #f8fafc;
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .btn-modal-cancel {
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            color: #475569;
-            padding: 8px 18px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        .btn-modal-cancel:hover {
-            background: #f1f5f9;
-        }
-
-        .alert-toast {
-            padding: 12px 18px;
-            border-radius: 4px;
-            margin-bottom: 18px;
-            font-size: 13.5px;
-            font-weight: 600;
-            display: block;
-        }
-
-        .alert-toast.success {
-            background: #dcfce7;
-            color: #15803d;
-            border: 1px solid #bbf7d0;
-        }
-
-        /* Order Details Styling */
-        .order-info-grid {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 14px 18px;
-            margin-bottom: 18px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .order-info-item strong {
-            display: block;
-            font-size: 11px;
-            color: #64748b;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 2px;
-        }
-
-        .order-info-item span {
-            font-size: 13.5px;
-            font-weight: 600;
-            color: #0f172a;
-        }
-
-        .status-update-box {
-            background: #eef6ff;
-            border: 1px solid #c7dfff;
-            border-radius: 6px;
-            padding: 16px;
-            margin-top: 14px;
-        }
-
-        .status-update-box h4 {
-            font-size: 13.5px;
-            font-weight: 700;
-            color: #1565c0;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Responsive */
-        @media (max-width: 900px) {
-            .admin-sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            .admin-main {
-                margin-left: 0;
-            }
-            .stat-cards-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
 <body>
-    <form id="form1" runat="server">
-        <div class="admin-wrapper">
+    <form id="form1" runat="server" enctype="multipart/form-data">
+        <div class="admin-layout">
 
-            <!-- ================= LEFT BLUE SIDEBAR ================= -->
+            <!-- ================= SIDEBAR ================= -->
             <aside class="admin-sidebar">
-                <div class="sidebar-header">
-                    <div class="sidebar-logo-box">
-                        <i class="fa-solid fa-shapes"></i>
+                <div class="sidebar-brand">
+                    <div class="sidebar-brand-icon">
+                        <i class="fa-solid fa-shirt"></i>
                     </div>
-                    <div class="sidebar-header-title">Welcome to Admin Panel</div>
+                    <div class="sidebar-brand-title">Textile</div>
                 </div>
 
-                <ul class="sidebar-menu">
+                <div class="sidebar-profile">
+                    <div class="sidebar-profile-avatar">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <div class="sidebar-profile-info">
+                        <div class="sidebar-profile-name">Admin</div>
+                        <div class="sidebar-profile-role">Administrator</div>
+                    </div>
+                </div>
+
+                <ul class="sidebar-nav">
+                    <!-- OVERVIEW -->
+                    <li class="nav-category">OVERVIEW</li>
                     <li>
-                        <a href="javascript:void(0)" class="active" onclick="switchNav('dashboard', this)">Dashboard</a>
+                        <a href="javascript:void(0)" class="active" onclick="switchNav('dashboard', this)">
+                            <i class="fa-solid fa-gauge-high"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+
+                    <!-- CATALOG -->
+                    <li class="nav-category">CATALOG</li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('addProduct', this)">
+                            <i class="fa-solid fa-circle-plus"></i>
+                            <span>Add Product</span>
+                        </a>
                     </li>
                     <li>
-                        <a href="javascript:void(0)" onclick="switchNav('products', this)">Products</a>
+                        <a href="javascript:void(0)" onclick="switchNav('manageProducts', this)">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                            <span>Manage Products</span>
+                        </a>
                     </li>
                     <li>
-                        <a href="javascript:void(0)" onclick="switchNav('orders', this)">Orders</a>
+                        <a href="javascript:void(0)" onclick="switchNav('categories', this)">
+                            <i class="fa-solid fa-layer-group"></i>
+                            <span>Categories &amp; Collections</span>
+                        </a>
                     </li>
                     <li>
-                        <a href="javascript:void(0)" onclick="switchNav('users', this)">Users</a>
+                        <a href="javascript:void(0)" onclick="switchNav('sizeStock', this)">
+                            <i class="fa-solid fa-warehouse"></i>
+                            <span>Size-wise Stock</span>
+                        </a>
                     </li>
                     <li>
-                        <a href="javascript:void(0)" onclick="switchNav('reports', this)">Reports</a>
+                        <a href="javascript:void(0)" onclick="switchNav('colors', this)">
+                            <i class="fa-solid fa-palette"></i>
+                            <span>Colors &amp; Variants</span>
+                        </a>
+                    </li>
+
+                    <!-- SALES -->
+                    <li class="nav-category">SALES</li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('orders', this)">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span>Orders</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('shipping', this)">
+                            <i class="fa-solid fa-truck"></i>
+                            <span>Shipping &amp; Delivery</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('returns', this)">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Returns &amp; Refunds</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('customers', this)">
+                            <i class="fa-solid fa-users"></i>
+                            <span>Customers</span>
+                        </a>
+                    </li>
+
+                    <!-- ENGAGEMENT & MARKETING -->
+                    <li class="nav-category">ENGAGEMENT &amp; MARKETING</li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('reviews', this)">
+                            <i class="fa-solid fa-star"></i>
+                            <span>Reviews &amp; Ratings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('discounts', this)">
+                            <i class="fa-solid fa-ticket"></i>
+                            <span>Discounts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('contact', this)">
+                            <i class="fa-solid fa-envelope"></i>
+                            <span>Contact Submissions</span>
+                            <asp:Label ID="lblContactBadge" runat="server" CssClass="nav-badge-orange" Text="2" />
+                        </a>
+                    </li>
+
+                    <!-- BUSINESS & REPORTS -->
+                    <li class="nav-category">BUSINESS &amp; REPORTS</li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('lowStock', this)">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span>Low Stock Alerts</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('reports', this)">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <span>Sales Analytics</span>
+                        </a>
+                    </li>
+
+                    <!-- WEBSITE & SETTINGS -->
+                    <li class="nav-category">WEBSITE &amp; SETTINGS</li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('adminUsers', this)">
+                            <i class="fa-solid fa-user-shield"></i>
+                            <span>Admin Users &amp; Roles</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" onclick="switchNav('settings', this)">
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Store Settings</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.aspx" target="_blank">
+                            <i class="fa-solid fa-store"></i>
+                            <span>View Store</span>
+                        </a>
                     </li>
                 </ul>
 
                 <div class="sidebar-footer">
-                    <a href="login.aspx">Logout</a>
+                    <a href="login.aspx">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Logout</span>
+                    </a>
                 </div>
             </aside>
 
-            <!-- ================= MAIN CONTENT ================= -->
+            <!-- ================= MAIN CONTAINER ================= -->
             <main class="admin-main">
-                
-                <!-- TOP BLUE BAR -->
-                <header class="admin-topbar">
-                    <h1 id="topbarTitle">Dashboard</h1>
-                    <div>
-                        <a href="index.aspx" target="_blank" style="color:#ffffff; text-decoration:none; font-size:13.5px; opacity:0.9;">
-                            <i class="fa-solid fa-store" style="margin-right:4px;"></i> View Store
-                        </a>
+
+                <!-- TOP BAR -->
+                <header class="admin-header">
+                    <div class="header-title-box">
+                        <h1 id="topbarTitle">Dashboard</h1>
+                        <p id="topbarSub">Monitor key metrics and recent activity.</p>
+                    </div>
+                    <div class="header-right">
+                        <div class="header-bell" title="Notifications">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+                        <div class="header-welcome">Welcome back, Admin</div>
                     </div>
                 </header>
 
-                <div class="admin-content">
+                <div class="admin-content-area">
 
-                    <!-- Message toast if product added/deleted or order updated -->
-                    <asp:Label ID="lblAdminProductMsg" runat="server" Visible="false" CssClass="alert-toast success" />
+                    <!-- Server Alert Toast -->
+                    <asp:Label ID="lblAdminProductMsg" runat="server" Visible="false" CssClass="admin-alert-banner" />
 
-                    <!-- ================= VIEW 1: DASHBOARD ================= -->
+                    <!-- Hidden fields for quick server operations -->
+                    <asp:HiddenField ID="hdnActiveView" runat="server" Value="dashboard" />
+
+                    <asp:HiddenField ID="hdnQuickOrderId" runat="server" />
+                    <asp:HiddenField ID="hdnQuickOrderStatus" runat="server" />
+                    <asp:Button ID="btnQuickUpdateOrderStatus" runat="server" OnClick="btnQuickUpdateOrderStatus_Click" Style="display:none;" />
+
+                    <asp:HiddenField ID="hdnStockProdId" runat="server" />
+                    <asp:HiddenField ID="hdnStockSize" runat="server" />
+                    <asp:HiddenField ID="hdnStockQty" runat="server" />
+                    <asp:HiddenField ID="hdnStockOp" runat="server" />
+                    <asp:Button ID="btnQuickAdjustSizeStock" runat="server" OnClick="btnQuickAdjustSizeStock_Click" Style="display:none;" />
+
+                    <asp:HiddenField ID="hdnToggleProdId" runat="server" />
+                    <asp:HiddenField ID="hdnToggleProdActive" runat="server" />
+                    <asp:Button ID="btnQuickToggleActive" runat="server" OnClick="btnQuickToggleActive_Click" Style="display:none;" />
+
+                    <asp:HiddenField ID="hdnQuickReturnId" runat="server" />
+                    <asp:HiddenField ID="hdnQuickReturnOrderNum" runat="server" />
+                    <asp:HiddenField ID="hdnQuickReturnStatus" runat="server" />
+                    <asp:Button ID="btnQuickUpdateReturnStatus" runat="server" OnClick="btnQuickUpdateReturnStatus_Click" Style="display:none;" />
+
+                    <!-- Legacy Hidden fields & Button -->
+                    <asp:HiddenField ID="hdnEditProductId" runat="server" />
+                    <asp:HiddenField ID="hdnAdjustStockId" runat="server" />
+                    <asp:HiddenField ID="hdnAdjustStockValue" runat="server" />
+                    <asp:Button ID="btnSaveStock" runat="server" OnClick="btnSaveStock_Click" Style="display:none;" />
+                    <asp:HiddenField ID="hdnManageOrderNumber" runat="server" />
+                    <asp:DropDownList ID="ddlManageOrderStatus" runat="server" Style="display:none;">
+                        <asp:ListItem Value="Pending">Pending</asp:ListItem>
+                        <asp:ListItem Value="Processing">Processing</asp:ListItem>
+                        <asp:ListItem Value="Shipped">Shipped</asp:ListItem>
+                        <asp:ListItem Value="Completed">Completed</asp:ListItem>
+                        <asp:ListItem Value="Cancelled">Cancelled</asp:ListItem>
+                    </asp:DropDownList>
+                    <asp:DropDownList ID="ddlManagePaymentStatus" runat="server" Style="display:none;">
+                        <asp:ListItem Value="Paid">Paid</asp:ListItem>
+                        <asp:ListItem Value="Pending">Pending</asp:ListItem>
+                    </asp:DropDownList>
+                    <asp:Button ID="btnUpdateOrderStatus" runat="server" OnClick="btnUpdateOrderStatus_Click" Style="display:none;" />
+
+                    <!-- Legacy inputs to satisfy any designer references -->
+                    <div style="display:none;">
+                        <asp:TextBox ID="txtProductName" runat="server" />
+                        <asp:DropDownList ID="ddlCategory" runat="server">
+                            <asp:ListItem Value="Shirts">Shirts</asp:ListItem>
+                        </asp:DropDownList>
+                        <asp:TextBox ID="txtStock" runat="server" />
+                        <asp:TextBox ID="txtPrice" runat="server" />
+                        <asp:TextBox ID="txtOriginalPrice" runat="server" />
+                        <asp:FileUpload ID="fileProductImages" runat="server" />
+                        <asp:TextBox ID="txtImageUrl" runat="server" />
+                        <asp:TextBox ID="txtDescription" runat="server" />
+                        <asp:DropDownList ID="ddlProductStatus" runat="server" />
+                        <asp:Button ID="btnAddProduct" runat="server" OnClick="btnAddProduct_Click" />
+                        <asp:Label ID="lblTotalCustomers" runat="server" />
+                        <asp:Label ID="lblProductCount" runat="server" />
+                        <asp:Label ID="lblOrderCount" runat="server" />
+                        <asp:Label ID="lblCustomerCount" runat="server" />
+                        <asp:Label ID="lblReportOrders" runat="server" />
+                        <asp:Label ID="lblReportCustomers" runat="server" />
+                        <asp:Label ID="lblReportAvgOrder" runat="server" />
+                        <asp:Repeater ID="rptDashboardProducts" runat="server" />
+                        <asp:Repeater ID="rptDashboardReviews" runat="server" />
+                        <asp:Repeater ID="rptAdminProducts" runat="server" />
+                        <asp:Repeater ID="rptAdminInventory" runat="server" />
+                        <asp:Repeater ID="rptAdminOrders" runat="server" />
+                        <asp:Repeater ID="rptAdminCustomers" runat="server" />
+                        <asp:Repeater ID="rptAdminCoupons" runat="server" />
+                        <asp:Repeater ID="rptAdminReviews" runat="server" />
+                        <asp:Repeater ID="rptAdminCategories" runat="server" />
+                        <asp:GridView ID="gvProducts" runat="server" />
+                        <asp:GridView ID="gvOrders" runat="server" />
+                        <asp:GridView ID="gvMessages" runat="server" />
+                    </div>
+
+                    <!-- ================= VIEW 1: DASHBOARD (IMAGE 1) ================= -->
                     <section id="dashboardView" class="admin-view active">
-                        
-                        <!-- 4 Stat Cards with Top Colored Borders -->
-                        <div class="stat-cards-grid">
-                            <div class="stat-card blue">
-                                <div class="stat-number">
-                                    <asp:Label ID="lblTotalProducts" runat="server" Text="5" />
-                                </div>
-                                <div class="stat-title">Total Products</div>
-                            </div>
-
-                            <div class="stat-card green">
-                                <div class="stat-number">
-                                    <asp:Label ID="lblTotalOrders" runat="server" Text="5" />
-                                </div>
-                                <div class="stat-title">Total Orders</div>
-                            </div>
-
-                            <div class="stat-card orange">
-                                <div class="stat-number">
-                                    <asp:Label ID="lblTotalCustomers" runat="server" Text="5" />
-                                </div>
-                                <div class="stat-title">Total Users</div>
-                            </div>
-
-                            <div class="stat-card purple">
-                                <div class="stat-number">
-                                    &#8377;<asp:Label ID="lblTotalSales" runat="server" Text="7,044" />
-                                </div>
-                                <div class="stat-title">Revenue</div>
-                            </div>
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-chart-line"></i> Dashboard Overview
                         </div>
 
-                        <!-- Two Column Bottom Section -->
-                        <div class="dashboard-grid">
-                            <!-- Left: Recent Orders with Manage action -->
-                            <div class="white-card">
-                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-                                    <h2 class="card-heading" style="margin-bottom:0;">Recent Orders</h2>
-                                    <span style="font-size:12px; color:#64748b;">Manage recent 4 orders</span>
+                        <!-- 6 Stat Cards with Blue Rounded Squircles -->
+                        <div class="stat-cards-six-grid">
+                            <!-- 1. Total Orders -->
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num"><asp:Label ID="lblTotalOrders" runat="server" Text="25" /></div>
+                                    <div class="stat-card-label">Total Orders</div>
                                 </div>
-                                
-                                <div class="recent-order-item">
-                                    <div class="recent-order-left">
-                                        <div class="order-id">ORD-1001</div>
-                                        <div class="cust-name">Tirth Kotak &bull; Rajkot</div>
-                                    </div>
-                                    <div class="recent-order-right">
-                                        <div class="order-price">&#8377;1,999</div>
-                                        <div>
-                                            <span class="order-status-text delivered" id="dashStatus_ORD1001">Delivered</span>
-                                            <button type="button" class="btn-quick-manage" onclick="openManageOrderModal('ORD-1001', 'Tirth Kotak', 'tirth.kotak@example.com', '+91 98251 44520', 'A-402 Royal Residency, Rajkot, Gujarat', '1999', 'Cash on Delivery (COD)', 'Paid', 'Delivered', '2026-07-28')">Manage</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="recent-order-item">
-                                    <div class="recent-order-left">
-                                        <div class="order-id">ORD-1002</div>
-                                        <div class="cust-name">Ansh Patel &bull; Ahmedabad</div>
-                                    </div>
-                                    <div class="recent-order-right">
-                                        <div class="order-price">&#8377;799</div>
-                                        <div>
-                                            <span class="order-status-text shipped" id="dashStatus_ORD1002">Shipped</span>
-                                            <button type="button" class="btn-quick-manage" onclick="openManageOrderModal('ORD-1002', 'Ansh Patel', 'ansh.patel@example.com', '+91 99042 18831', '12 Nilkanth Park, Ahmedabad, Gujarat', '799', 'UPI Online', 'Paid', 'Shipped', '2026-07-30')">Manage</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="recent-order-item">
-                                    <div class="recent-order-left">
-                                        <div class="order-id">ORD-1003</div>
-                                        <div class="cust-name">Priya Patel &bull; Surat</div>
-                                    </div>
-                                    <div class="recent-order-right">
-                                        <div class="order-price">&#8377;1,299</div>
-                                        <div>
-                                            <span class="order-status-text processing" id="dashStatus_ORD1003">Processing</span>
-                                            <button type="button" class="btn-quick-manage" onclick="openManageOrderModal('ORD-1003', 'Priya Patel', 'priya.p@example.com', '+91 97123 90812', 'B-14 Silver Hub, Surat, Gujarat', '1299', 'Credit Card', 'Paid', 'Processing', '2026-08-01')">Manage</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="recent-order-item">
-                                    <div class="recent-order-left">
-                                        <div class="order-id">ORD-1004</div>
-                                        <div class="cust-name">Riya Mehta &bull; Vadodara</div>
-                                    </div>
-                                    <div class="recent-order-right">
-                                        <div class="order-price">&#8377;1,848</div>
-                                        <div>
-                                            <span class="order-status-text pending" id="dashStatus_ORD1004">Pending</span>
-                                            <button type="button" class="btn-quick-manage" onclick="openManageOrderModal('ORD-1004', 'Riya Mehta', 'riya.mehta@example.com', '+91 98980 54321', '45 Crystal Plaza, Vadodara, Gujarat', '1848', 'Cash on Delivery (COD)', 'Pending', 'Pending', '2026-08-02')">Manage</button>
-                                        </div>
-                                    </div>
+                                <div class="stat-card-squircle">
+                                    <i class="fa-solid fa-cart-shopping"></i>
                                 </div>
                             </div>
 
-                            <!-- Right: Products Overview -->
-                            <div class="white-card">
-                                <h2 class="card-heading">Products Overview</h2>
-
-                                <div class="product-overview-item">
-                                    <img src="images/product_marble_tshirt.jpg" class="product-overview-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100';" />
-                                    <div class="product-overview-details">
-                                        <div class="product-overview-title">Marble Swirl Print T-Shirt</div>
-                                        <div class="product-overview-price">&#8377;799</div>
-                                    </div>
-                                    <div class="product-overview-stock">Stock: 40</div>
+                            <!-- 2. Total Revenue -->
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num">&#8377;<asp:Label ID="lblTotalSales" runat="server" Text="40,904" /></div>
+                                    <div class="stat-card-label">Total Revenue</div>
                                 </div>
-
-                                <div class="product-overview-item">
-                                    <img src="images/product_gorilla_tshirt.jpg" class="product-overview-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100';" />
-                                    <div class="product-overview-details">
-                                        <div class="product-overview-title">Gorilla Graphic T-Shirt</div>
-                                        <div class="product-overview-price">&#8377;649</div>
-                                    </div>
-                                    <div class="product-overview-stock">Stock: 35</div>
+                                <div class="stat-card-squircle currency">
+                                    Rs
                                 </div>
+                            </div>
 
-                                <div class="product-overview-item">
-                                    <img src="images/product_textiles_hoodie.jpg" class="product-overview-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=100';" />
-                                    <div class="product-overview-details">
-                                        <div class="product-overview-title">Textiles Signature Hoodie</div>
-                                        <div class="product-overview-price">&#8377;1,299</div>
-                                    </div>
-                                    <div class="product-overview-stock">Stock: 25</div>
+                            <!-- 3. Pending Orders -->
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num"><asp:Label ID="lblPendingOrders" runat="server" Text="4" /></div>
+                                    <div class="stat-card-label">Pending Orders</div>
                                 </div>
-
-                                <div class="product-overview-item">
-                                    <img src="images/product_tiger_jacket.jpg" class="product-overview-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=100';" />
-                                    <div class="product-overview-details">
-                                        <div class="product-overview-title">Tiger Varsity Jacket</div>
-                                        <div class="product-overview-price">&#8377;1,999</div>
-                                    </div>
-                                    <div class="product-overview-stock">Stock: 12</div>
+                                <div class="stat-card-squircle">
+                                    <i class="fa-regular fa-clock"></i>
                                 </div>
+                            </div>
 
-                                <div class="product-overview-item">
-                                    <img src="images/product_slim_jeans.jpg" class="product-overview-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1542272604-780c96856592?w=100';" />
-                                    <div class="product-overview-details">
-                                        <div class="product-overview-title">Slim Fit Blue Jeans</div>
-                                        <div class="product-overview-price">&#8377;1,199</div>
-                                    </div>
-                                    <div class="product-overview-stock">Stock: 50</div>
+                            <!-- 4. Products -->
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num"><asp:Label ID="lblTotalProducts" runat="server" Text="16" /></div>
+                                    <div class="stat-card-label">Products</div>
+                                </div>
+                                <div class="stat-card-squircle">
+                                    <i class="fa-solid fa-tag"></i>
+                                </div>
+                            </div>
+
+                            <!-- 5. Avg Rating -->
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num"><asp:Label ID="lblAvgRating" runat="server" Text="4.5" /></div>
+                                    <div class="stat-card-label">Avg Rating</div>
+                                </div>
+                                <div class="stat-card-squircle">
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
+                            </div>
+
+                            <!-- 6. Contact Messages -->
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num"><asp:Label ID="lblContactMessagesCount" runat="server" Text="2 / 2" /></div>
+                                    <div class="stat-card-label">Contact Messages</div>
+                                </div>
+                                <div class="stat-card-squircle">
+                                    <i class="fa-solid fa-envelope"></i>
                                 </div>
                             </div>
                         </div>
 
-                    </section>
-
-                    <!-- ================= VIEW 2: PRODUCTS ================= -->
-                    <section id="productsView" class="admin-view">
-                        
-                        <div class="table-action-bar">
-                            <div class="table-counter-text">Showing 5 products</div>
-                            <button type="button" class="btn-add-primary" onclick="openAddProductModal()">
-                                + Add Product
-                            </button>
-                        </div>
-
-                        <div class="blue-header-table-wrapper">
-                            <!-- Live Database GridView with exact Screenshot styling -->
-                            <asp:GridView ID="gvProducts" runat="server" AutoGenerateColumns="False"
-                                DataKeyNames="id" OnRowDeleting="gvProducts_RowDeleting" CssClass="blue-table" GridLines="None">
-                                <Columns>
-                                    <asp:TemplateField HeaderText="Image" ItemStyle-Width="65px">
-                                        <ItemTemplate>
-                                            <img src='<%# Eval("image_url") %>' class="table-product-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100';" />
-                                        </ItemTemplate>
-                                    </asp:TemplateField>
-                                    <asp:BoundField DataField="name" HeaderText="Product Name" ItemStyle-Font-Bold="true" />
-                                    <asp:BoundField DataField="category" HeaderText="Category" ItemStyle-ForeColor="#64748b" />
-                                    <asp:BoundField DataField="price" HeaderText="Price" DataFormatString="&#8377;{0:N0}" ItemStyle-CssClass="table-price-bold" />
-                                    <asp:BoundField DataField="stock" HeaderText="Stock" ItemStyle-ForeColor="#2e7d32" ItemStyle-Font-Bold="true" />
-                                    <asp:TemplateField HeaderText="Edit" ItemStyle-Width="80px">
-                                        <ItemTemplate>
-                                            <a href="javascript:void(0)" class="btn-action-edit" onclick="openEditProductModal('<%# Eval("name") %>', '<%# Eval("category") %>', '<%# Eval("price") %>', '<%# Eval("stock") %>', '<%# Eval("image_url") %>')">Edit</a>
-                                        </ItemTemplate>
-                                    </asp:TemplateField>
-                                    <asp:TemplateField HeaderText="Delete" ItemStyle-Width="85px">
-                                        <ItemTemplate>
-                                            <asp:Button ID="btnDelete" runat="server" CommandName="Delete" Text="Delete"
-                                                CssClass="btn-action-delete" OnClientClick="return confirm('Are you sure you want to delete this product?');" />
-                                        </ItemTemplate>
-                                    </asp:TemplateField>
-                                </Columns>
-                                <EmptyDataTemplate>
-                                    <tr style="display:none;"><td></td></tr>
-                                </EmptyDataTemplate>
-                            </asp:GridView>
-
-                            <!-- Static reference table matching Screenshot 2 when database has 0 items -->
-                            <div id="demoProductsTable" style="display:none;">
-                                <table class="blue-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Image</th>
-                                            <th>Product Name</th>
-                                            <th>Category</th>
-                                            <th>Price</th>
-                                            <th>Stock</th>
-                                            <th>Edit</th>
-                                            <th>Delete</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td><img src="images/product_marble_tshirt.jpg" class="table-product-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100';" /></td>
-                                            <td><strong>Marble Swirl Print T-Shirt</strong></td>
-                                            <td style="color:#64748b;">Men</td>
-                                            <td class="table-price-bold">&#8377;799</td>
-                                            <td style="color:#2e7d32; font-weight:700;">40</td>
-                                            <td><button type="button" class="btn-action-edit" onclick="openAddProductModal()">Edit</button></td>
-                                            <td><button type="button" class="btn-action-delete" onclick="alert('Demo row cannot be deleted.')">Delete</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><img src="images/product_gorilla_tshirt.jpg" class="table-product-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=100';" /></td>
-                                            <td><strong>Gorilla Graphic T-Shirt</strong></td>
-                                            <td style="color:#64748b;">Men</td>
-                                            <td class="table-price-bold">&#8377;649</td>
-                                            <td style="color:#2e7d32; font-weight:700;">35</td>
-                                            <td><button type="button" class="btn-action-edit" onclick="openAddProductModal()">Edit</button></td>
-                                            <td><button type="button" class="btn-action-delete" onclick="alert('Demo row cannot be deleted.')">Delete</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><img src="images/product_textiles_hoodie.jpg" class="table-product-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=100';" /></td>
-                                            <td><strong>Textiles Signature Hoodie</strong></td>
-                                            <td style="color:#64748b;">Men</td>
-                                            <td class="table-price-bold">&#8377;1,299</td>
-                                            <td style="color:#2e7d32; font-weight:700;">25</td>
-                                            <td><button type="button" class="btn-action-edit" onclick="openAddProductModal()">Edit</button></td>
-                                            <td><button type="button" class="btn-action-delete" onclick="alert('Demo row cannot be deleted.')">Delete</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><img src="images/product_tiger_jacket.jpg" class="table-product-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=100';" /></td>
-                                            <td><strong>Tiger Varsity Jacket</strong></td>
-                                            <td style="color:#64748b;">Men</td>
-                                            <td class="table-price-bold">&#8377;1,999</td>
-                                            <td style="color:#2e7d32; font-weight:700;">12</td>
-                                            <td><button type="button" class="btn-action-edit" onclick="openAddProductModal()">Edit</button></td>
-                                            <td><button type="button" class="btn-action-delete" onclick="alert('Demo row cannot be deleted.')">Delete</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><img src="images/product_slim_jeans.jpg" class="table-product-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1542272604-780c96856592?w=100';" /></td>
-                                            <td><strong>Slim Fit Blue Jeans</strong></td>
-                                            <td style="color:#64748b;">Men</td>
-                                            <td class="table-price-bold">&#8377;1,199</td>
-                                            <td style="color:#2e7d32; font-weight:700;">50</td>
-                                            <td><button type="button" class="btn-action-edit" onclick="openAddProductModal()">Edit</button></td>
-                                            <td><button type="button" class="btn-action-delete" onclick="alert('Demo row cannot be deleted.')">Delete</button></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        <!-- Recent Orders White Card (Image 1) -->
+                        <div class="white-box-card">
+                            <div class="card-header-row">
+                                <div class="card-header-title">
+                                    <i class="fa-regular fa-clock"></i> Recent Orders
+                                </div>
+                                <button type="button" class="btn-view-all-pill" onclick="switchNav('orders', document.querySelectorAll('.sidebar-nav a')[6])">
+                                    View All &rarr;
+                                </button>
                             </div>
-                        </div>
 
-                    </section>
-
-                    <!-- ================= VIEW 3: ORDERS ================= -->
-                    <section id="ordersView" class="admin-view">
-                        
-                        <div class="table-action-bar">
-                            <div class="table-counter-text">Showing 5 customer orders &bull; Click "Manage" to update order delivery status</div>
-                        </div>
-
-                        <div class="blue-header-table-wrapper">
-                            <!-- Live Database GridView with Manage Order Action -->
-                            <asp:GridView ID="gvOrders" runat="server" AutoGenerateColumns="False" CssClass="blue-table" GridLines="None">
-                                <Columns>
-                                    <asp:BoundField DataField="order_number" HeaderText="Order ID" ItemStyle-CssClass="table-price-bold" />
-                                    <asp:BoundField DataField="customer_name" HeaderText="Customer Name" ItemStyle-Font-Bold="true" />
-                                    <asp:BoundField DataField="created_at" HeaderText="Date" DataFormatString="{0:yyyy-MM-dd}" ItemStyle-ForeColor="#64748b" />
-                                    <asp:BoundField DataField="total_amount" HeaderText="Amount" DataFormatString="&#8377;{0:N0}" ItemStyle-Font-Bold="true" />
-                                    <asp:TemplateField HeaderText="Status">
-                                        <ItemTemplate>
-                                            <span class='<%# "status-pill " + Eval("order_status").ToString().ToLower() %>'>
-                                                <%# Eval("order_status") %>
-                                            </span>
-                                        </ItemTemplate>
-                                    </asp:TemplateField>
-                                    <asp:TemplateField HeaderText="Action" ItemStyle-Width="120px">
-                                        <ItemTemplate>
-                                            <button type="button" class="btn-action-view" onclick="openManageOrderModal('<%# Eval("order_number") %>', '<%# Eval("customer_name") %>', '<%# Eval("user_email") %>', '<%# Eval("phone") %>', '<%# Eval("address") %>', '<%# Eval("total_amount") %>', '<%# Eval("payment_method") %>', '<%# Eval("payment_status") %>', '<%# Eval("order_status") %>', '<%# Eval("created_at", "{0:yyyy-MM-dd}") %>')">Manage</button>
-                                        </ItemTemplate>
-                                    </asp:TemplateField>
-                                </Columns>
-                            </asp:GridView>
-
-                            <!-- Static reference table matching Screenshot 3 when database has 0 items -->
-                            <div id="demoOrdersTable" style="display:none;">
-                                <table class="blue-table">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
                                     <thead>
                                         <tr>
                                             <th>Order ID</th>
-                                            <th>Customer Name</th>
-                                            <th>Date</th>
-                                            <th>Amount</th>
+                                            <th>Customer</th>
+                                            <th>Total</th>
                                             <th>Status</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr id="row_ORD1001">
-                                            <td class="table-price-bold">ORD-1001</td>
-                                            <td><strong>Tirth Kotak</strong></td>
-                                            <td style="color:#64748b;">2026-07-28</td>
-                                            <td><strong>&#8377;1,999</strong></td>
-                                            <td><span class="status-pill delivered" id="pill_ORD1001">Delivered</span></td>
-                                            <td><button type="button" class="btn-action-view" onclick="openManageOrderModal('ORD-1001', 'Tirth Kotak', 'tirth.kotak@example.com', '+91 98251 44520', 'A-402 Royal Residency, Rajkot, Gujarat', '1999', 'Cash on Delivery (COD)', 'Paid', 'Delivered', '2026-07-28')">Manage</button></td>
-                                        </tr>
-                                        <tr id="row_ORD1002">
-                                            <td class="table-price-bold">ORD-1002</td>
-                                            <td><strong>Ansh Patel</strong></td>
-                                            <td style="color:#64748b;">2026-07-30</td>
-                                            <td><strong>&#8377;799</strong></td>
-                                            <td><span class="status-pill shipped" id="pill_ORD1002">Shipped</span></td>
-                                            <td><button type="button" class="btn-action-view" onclick="openManageOrderModal('ORD-1002', 'Ansh Patel', 'ansh.patel@example.com', '+91 99042 18831', '12 Nilkanth Park, Ahmedabad, Gujarat', '799', 'UPI Online', 'Paid', 'Shipped', '2026-07-30')">Manage</button></td>
-                                        </tr>
-                                        <tr id="row_ORD1003">
-                                            <td class="table-price-bold">ORD-1003</td>
-                                            <td><strong>Priya Patel</strong></td>
-                                            <td style="color:#64748b;">2026-08-01</td>
-                                            <td><strong>&#8377;1,299</strong></td>
-                                            <td><span class="status-pill processing" id="pill_ORD1003">Processing</span></td>
-                                            <td><button type="button" class="btn-action-view" onclick="openManageOrderModal('ORD-1003', 'Priya Patel', 'priya.p@example.com', '+91 97123 90812', 'B-14 Silver Hub, Surat, Gujarat', '1299', 'Credit Card', 'Paid', 'Processing', '2026-08-01')">Manage</button></td>
-                                        </tr>
-                                        <tr id="row_ORD1004">
-                                            <td class="table-price-bold">ORD-1004</td>
-                                            <td><strong>Riya Mehta</strong></td>
-                                            <td style="color:#64748b;">2026-08-02</td>
-                                            <td><strong>&#8377;1,848</strong></td>
-                                            <td><span class="status-pill pending" id="pill_ORD1004">Pending</span></td>
-                                            <td><button type="button" class="btn-action-view" onclick="openManageOrderModal('ORD-1004', 'Riya Mehta', 'riya.mehta@example.com', '+91 98980 54321', '45 Crystal Plaza, Vadodara, Gujarat', '1848', 'Cash on Delivery (COD)', 'Pending', 'Pending', '2026-08-02')">Manage</button></td>
-                                        </tr>
-                                        <tr id="row_ORD1005">
-                                            <td class="table-price-bold">ORD-1005</td>
-                                            <td><strong>Harsh Shah</strong></td>
-                                            <td style="color:#64748b;">2026-08-03</td>
-                                            <td><strong>&#8377;1,199</strong></td>
-                                            <td><span class="status-pill delivered" id="pill_ORD1005">Delivered</span></td>
-                                            <td><button type="button" class="btn-action-view" onclick="openManageOrderModal('ORD-1005', 'Harsh Shah', 'harsh.shah@example.com', '+91 94260 11984', '78 Navrang Society, Jamnagar, Gujarat', '1199', 'Cash on Delivery (COD)', 'Paid', 'Delivered', '2026-08-03')">Manage</button></td>
-                                        </tr>
+                                        <asp:Repeater ID="rptDashboardRecentOrders" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-id-bold">#<%# Eval("id") %></td>
+                                                    <td class="table-cust-name"><%# Eval("customer_name") %></td>
+                                                    <td class="table-price-bold">&#8377;<%# Eval("total_amount", "{0:N0}") %></td>
+                                                    <td>
+                                                        <span class='status-badge <%# Eval("order_status").ToString().ToLower() %>'><%# Eval("order_status") %></span>
+                                                    </td>
+                                                    <td>
+                                                        <select class="table-action-select" onchange="quickUpdateOrder('<%# Eval("id") %>', this.value, 'dashboard')">
+                                                            <option value="Pending" <%# Eval("order_status").ToString().Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Pending</option>
+                                                            <option value="Processing" <%# Eval("order_status").ToString().Equals("Processing", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Processing</option>
+                                                            <option value="Shipped" <%# Eval("order_status").ToString().Equals("Shipped", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Shipped</option>
+                                                            <option value="Completed" <%# Eval("order_status").ToString().Equals("Completed", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Completed</option>
+                                                            <option value="Cancelled" <%# Eval("order_status").ToString().Equals("Cancelled", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Cancelled</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-
                     </section>
 
-                    <!-- ================= VIEW 4: USERS ================= -->
-                    <section id="usersView" class="admin-view">
-                        
-                        <div class="table-action-bar">
-                            <div class="table-counter-text">Registered Customers (5 Users)</div>
+                    <!-- ================= VIEW 2: ADD PRODUCT (IMAGE 2) ================= -->
+                    <section id="addProductView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-circle-plus"></i> Add New Product
                         </div>
 
-                        <div class="blue-header-table-wrapper">
-                            <table class="blue-table">
-                                <thead>
-                                    <tr>
-                                        <th>User ID</th>
-                                        <th>Full Name</th>
-                                        <th>Email Address</th>
-                                        <th>Phone</th>
-                                        <th>City</th>
-                                        <th>Total Orders</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="table-price-bold">#USR-101</td>
-                                        <td><strong>Tirth Kotak</strong></td>
-                                        <td style="color:#64748b;">tirth.kotak@example.com</td>
-                                        <td>+91 98251 44520</td>
-                                        <td>Rajkot</td>
-                                        <td><strong style="color:#1565c0;">1 Order</strong></td>
-                                        <td><span class="status-pill delivered">Active</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="table-price-bold">#USR-102</td>
-                                        <td><strong>Ansh Patel</strong></td>
-                                        <td style="color:#64748b;">ansh.patel@example.com</td>
-                                        <td>+91 99042 18831</td>
-                                        <td>Ahmedabad</td>
-                                        <td><strong style="color:#1565c0;">1 Order</strong></td>
-                                        <td><span class="status-pill delivered">Active</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="table-price-bold">#USR-103</td>
-                                        <td><strong>Priya Patel</strong></td>
-                                        <td style="color:#64748b;">priya.p@example.com</td>
-                                        <td>+91 97123 90812</td>
-                                        <td>Surat</td>
-                                        <td><strong style="color:#1565c0;">1 Order</strong></td>
-                                        <td><span class="status-pill delivered">Active</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="table-price-bold">#USR-104</td>
-                                        <td><strong>Riya Mehta</strong></td>
-                                        <td style="color:#64748b;">riya.mehta@example.com</td>
-                                        <td>+91 98980 54321</td>
-                                        <td>Vadodara</td>
-                                        <td><strong style="color:#1565c0;">1 Order</strong></td>
-                                        <td><span class="status-pill delivered">Active</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="table-price-bold">#USR-105</td>
-                                        <td><strong>Harsh Shah</strong></td>
-                                        <td style="color:#64748b;">harsh.shah@example.com</td>
-                                        <td>+91 94260 11984</td>
-                                        <td>Jamnagar</td>
-                                        <td><strong style="color:#1565c0;">1 Order</strong></td>
-                                        <td><span class="status-pill delivered">Active</span></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="white-box-card">
+                            <div id="addProductValError" class="validation-error-banner"></div>
+                            <!-- Row 1: Name, Category, Price -->
+                            <div class="form-grid-three">
+                                <div class="form-group">
+                                    <label>Product Name <span class="req">*</span></label>
+                                    <asp:TextBox ID="txtAddProdName" runat="server" CssClass="form-control-input" placeholder="e.g. Linen Casual Shirt" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Category <span class="req">*</span></label>
+                                    <asp:DropDownList ID="ddlAddProdCategory" runat="server" CssClass="form-control-input">
+                                        <asp:ListItem Value="T-Shirts">T-Shirt</asp:ListItem>
+                                        <asp:ListItem Value="Shirts">Shirt</asp:ListItem>
+                                        <asp:ListItem Value="Pants">Pants</asp:ListItem>
+                                        <asp:ListItem Value="Jeans">Jeans</asp:ListItem>
+                                        <asp:ListItem Value="Shorts">Shorts</asp:ListItem>
+                                        <asp:ListItem Value="Hoodies">Hoodie</asp:ListItem>
+                                        <asp:ListItem Value="Jackets">Jacket</asp:ListItem>
+                                        <asp:ListItem Value="Sweatshirts">Sweatshirt</asp:ListItem>
+                                        <asp:ListItem Value="Trousers">Trousers</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="form-group">
+                                    <label>Price (&#8377;) <span class="req">*</span></label>
+                                    <asp:TextBox ID="txtAddProdPrice" runat="server" CssClass="form-control-input" placeholder="999" />
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Sizes, Main Image, Additional Image 2 -->
+                            <div class="form-grid-three">
+                                <div class="form-group">
+                                    <label>Sizes (comma separated) <span class="req">*</span></label>
+                                    <asp:TextBox ID="txtAddProdSizes" runat="server" CssClass="form-control-input" Text="S, M, L, XL, XXL" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Main Image <span class="req">*</span></label>
+                                    <asp:TextBox ID="txtAddProdImg1" runat="server" CssClass="form-control-input" placeholder="images/product_marble_tshirt.jpg" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Additional Image 2</label>
+                                    <asp:TextBox ID="txtAddProdImg2" runat="server" CssClass="form-control-input" placeholder="Additional image URL" />
+                                </div>
+                            </div>
+
+                            <!-- Row 3: Additional Images 3, 4, 5 -->
+                            <div class="form-grid-three">
+                                <div class="form-group">
+                                    <label>Additional Image 3</label>
+                                    <asp:TextBox ID="txtAddProdImg3" runat="server" CssClass="form-control-input" placeholder="Additional image URL" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Additional Image 4</label>
+                                    <asp:TextBox ID="txtAddProdImg4" runat="server" CssClass="form-control-input" placeholder="Additional image URL" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Additional Image 5</label>
+                                    <asp:TextBox ID="txtAddProdImg5" runat="server" CssClass="form-control-input" placeholder="Additional image URL" />
+                                </div>
+                            </div>
+
+                            <!-- Row 4: Material, Care Instructions -->
+                            <div class="form-grid-two">
+                                <div class="form-group">
+                                    <label>Material</label>
+                                    <asp:TextBox ID="txtAddProdMaterial" runat="server" CssClass="form-control-input" Text="Cotton" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Care Instructions</label>
+                                    <asp:TextBox ID="txtAddProdCare" runat="server" CssClass="form-control-input" Text="Machine wash" />
+                                </div>
+                            </div>
+
+                            <!-- Row 5: Product Description -->
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label>Product Description <span class="req">*</span></label>
+                                <asp:TextBox ID="txtAddProdDesc" runat="server" TextMode="MultiLine" CssClass="form-control-input" placeholder="Enter detailed product description..." />
+                            </div>
+
+                            <!-- Row 6: Size-wise Stock Management Inputs -->
+                            <div class="size-stock-input-box">
+                                <h3>Size-wise Stock</h3>
+                                <div class="size-stock-inputs-row">
+                                    <div class="size-stock-col">
+                                        <label>Size S</label>
+                                        <asp:TextBox ID="txtAddStockS" runat="server" CssClass="form-control-input" Text="0" />
+                                    </div>
+                                    <div class="size-stock-col">
+                                        <label>Size M</label>
+                                        <asp:TextBox ID="txtAddStockM" runat="server" CssClass="form-control-input" Text="0" />
+                                    </div>
+                                    <div class="size-stock-col">
+                                        <label>Size L</label>
+                                        <asp:TextBox ID="txtAddStockL" runat="server" CssClass="form-control-input" Text="0" />
+                                    </div>
+                                    <div class="size-stock-col">
+                                        <label>Size XL</label>
+                                        <asp:TextBox ID="txtAddStockXL" runat="server" CssClass="form-control-input" Text="0" />
+                                    </div>
+                                    <div class="size-stock-col">
+                                        <label>Size XXL</label>
+                                        <asp:TextBox ID="txtAddStockXXL" runat="server" CssClass="form-control-input" Text="0" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <asp:Button ID="btnAddProductSubmit" runat="server" CssClass="btn-submit-green" Text="+ Add Product" OnClick="btnAddProductSubmit_Click" OnClientClick="return validateAddProductForm();" />
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 3: MANAGE PRODUCTS (IMAGE 3) ================= -->
+                    <section id="manageProductsView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-boxes-stacked"></i> Manage Products
                         </div>
 
-                        <!-- Live Inquiries / Contact Messages Table -->
-                        <div style="margin-top: 26px;">
-                            <h2 class="card-heading">Contact Messages Received</h2>
-                            <div class="blue-header-table-wrapper">
-                                <asp:GridView ID="gvMessages" runat="server" AutoGenerateColumns="False" CssClass="blue-table" GridLines="None">
-                                    <Columns>
-                                        <asp:BoundField DataField="id" HeaderText="ID" ItemStyle-Width="50px" />
-                                        <asp:BoundField DataField="name" HeaderText="Name" ItemStyle-Font-Bold="true" />
-                                        <asp:BoundField DataField="email" HeaderText="Email" />
-                                        <asp:BoundField DataField="subject" HeaderText="Subject" />
-                                        <asp:BoundField DataField="message" HeaderText="Message" />
-                                        <asp:BoundField DataField="submitted_at" HeaderText="Date" DataFormatString="{0:yyyy-MM-dd}" />
-                                    </Columns>
-                                    <EmptyDataTemplate>
-                                        <div style="padding: 20px; text-align: center; color: #64748b;">
-                                            No contact inquiries received yet.
+                        <!-- 3-Column Product Cards Grid (Matching Image 3) -->
+                        <div class="products-cards-grid">
+                            <asp:Repeater ID="rptManageProductsGrid" runat="server">
+                                <ItemTemplate>
+                                    <div class="prod-card">
+                                        <img src='<%# GetFirstImage(Eval("image_url")) %>' class="prod-card-thumb" alt="Product" onerror="this.src='https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300'" />
+                                        <div class="prod-card-body">
+                                            <div class="prod-card-title"><%# Eval("name") %></div>
+                                            <div class="prod-card-price">&#8377;<%# Eval("price", "{0:N0}") %></div>
+
+                                            <div class="size-badges-row">
+                                                <span class="size-badge-pill">S: <%# Eval("stock_s") %></span>
+                                                <span class="size-badge-pill">M: <%# Eval("stock_m") %></span>
+                                                <span class="size-badge-pill">L: <%# Eval("stock_l") %></span>
+                                                <span class="size-badge-pill">XL: <%# Eval("stock_xl") %></span>
+                                                <span class="size-badge-pill">XXL: <%# Eval("stock_xxl") %></span>
+                                            </div>
+
+                                            <div class="stock-total-badge">
+                                                Total Stock: <%# Eval("stock") %>
+                                            </div>
+
+                                            <div class="prod-card-rating">
+                                                &#9733;&#9733;&#9733;&#9733;&#9733; <span>(<%# Eval("review_count") %>)</span>
+                                            </div>
+
+                                            <div class="prod-card-actions">
+                                                <button type="button" class="btn-card-details" onclick="openDetailsModal('<%# Eval("id") %>', '<%# CleanJs(Eval("name")) %>', '<%# CleanJs(Eval("category")) %>', '<%# Eval("price") %>', '<%# Eval("stock") %>', '<%# CleanJs(Eval("image_url")) %>', '<%# CleanJs(Eval("description")) %>')">Details</button>
+                                                
+                                                <select class="select-card-status" onchange="quickToggleProductActive('<%# Eval("id") %>', this.value)">
+                                                    <option value="1" <%# Convert.ToInt32(Eval("is_active")) == 1 ? "selected" : "" %>>Active</option>
+                                                    <option value="0" <%# Convert.ToInt32(Eval("is_active")) == 0 ? "selected" : "" %>>Inactive</option>
+                                                </select>
+
+                                                <asp:LinkButton ID="btnCardDelete" runat="server" CssClass="btn-card-delete" CommandArgument='<%# Eval("id") %>' OnClick="btnDeleteProduct_Click" OnClientClick="return confirm('Are you sure you want to delete this product?');">Delete</asp:LinkButton>
+                                            </div>
                                         </div>
-                                    </EmptyDataTemplate>
-                                </asp:GridView>
-                            </div>
+                                    </div>
+                                </ItemTemplate>
+                            </asp:Repeater>
                         </div>
-
                     </section>
 
-                    <!-- ================= VIEW 5: REPORTS ================= -->
+                    <!-- ================= VIEW 4: SIZE-WISE STOCK (IMAGE 4) ================= -->
+                    <section id="sizeStockView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-warehouse"></i> Size-wise Stock Management
+                        </div>
+
+                        <!-- 3-Column Stock Cards Grid (Matching Image 4) -->
+                        <div class="products-cards-grid">
+                            <asp:Repeater ID="rptSizeStockGrid" runat="server">
+                                <ItemTemplate>
+                                    <div class="stock-manage-card">
+                                        <div>
+                                            <div class="stock-card-top">
+                                                <div>
+                                                    <div class="stock-card-title"><%# Eval("name") %></div>
+                                                    <div class="stock-card-sub">&#8377;<%# Eval("price", "{0:N0}") %> | ID: <%# Eval("id") %></div>
+                                                </div>
+                                                <div class="stock-card-total-pill">Total: <%# Eval("stock") %></div>
+                                            </div>
+
+                                            <div class="stock-section-title">AVAILABLE SIZES &amp; STOCK</div>
+                                            <div class="size-badges-row">
+                                                <span class="size-badge-pill">S: <%# Eval("stock_s") %></span>
+                                                <span class="size-badge-pill">M: <%# Eval("stock_m") %></span>
+                                                <span class="size-badge-pill">L: <%# Eval("stock_l") %></span>
+                                                <span class="size-badge-pill">XL: <%# Eval("stock_xl") %></span>
+                                                <span class="size-badge-pill">XXL: <%# Eval("stock_xxl") %></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick Adjust Controls (Matching Image 4) -->
+                                        <div class="stock-adjust-form">
+                                            <select class="stock-select-size" id='<%# "sel_size_" + Eval("id") %>'>
+                                                <option value="S">Size S</option>
+                                                <option value="M">Size M</option>
+                                                <option value="L">Size L</option>
+                                                <option value="XL">Size XL</option>
+                                                <option value="XXL">Size XXL</option>
+                                            </select>
+                                            <input type="number" class="stock-input-qty" id='<%# "qty_" + Eval("id") %>' value="1" min="1" max="100" />
+                                            <button type="button" class="btn-stock-add" onclick="quickStockAdjust('<%# Eval("id") %>', 'add')">+ Add</button>
+                                            <button type="button" class="btn-stock-remove" onclick="quickStockAdjust('<%# Eval("id") %>', 'remove')">- Remove</button>
+                                        </div>
+                                    </div>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 5: ALL ORDERS (IMAGE 5) ================= -->
+                    <section id="ordersView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-cart-shopping"></i> All Orders (<asp:Label ID="lblAllOrdersCount" runat="server" Text="25" />)
+                        </div>
+
+                        <div class="white-box-card">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Customer</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <asp:Repeater ID="rptOrdersTable" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-id-bold">#<%# Eval("id") %></td>
+                                                    <td>
+                                                        <div class="table-cust-name"><%# Eval("customer_name") %></div>
+                                                        <div class="table-cust-sub"><%# Eval("user_email") %></div>
+                                                    </td>
+                                                    <td class="table-price-bold">&#8377;<%# Eval("total_amount", "{0:N0}") %></td>
+                                                    <td>
+                                                        <span class='status-badge <%# Eval("order_status").ToString().ToLower() %>'><%# Eval("order_status") %></span>
+                                                    </td>
+                                                    <td style="color:#64748b; font-size:12.5px;"><%# Eval("date_formatted") %></td>
+                                                    <td>
+                                                        <select class="table-action-select" onchange="quickUpdateOrder('<%# Eval("id") %>', this.value, 'orders')">
+                                                            <option value="Pending" <%# Eval("order_status").ToString().Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Pending</option>
+                                                            <option value="Processing" <%# Eval("order_status").ToString().Equals("Processing", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Processing</option>
+                                                            <option value="Shipped" <%# Eval("order_status").ToString().Equals("Shipped", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Shipped</option>
+                                                            <option value="Completed" <%# Eval("order_status").ToString().Equals("Completed", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Completed</option>
+                                                            <option value="Cancelled" <%# Eval("order_status").ToString().Equals("Cancelled", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Cancelled</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 6: CUSTOMERS ================= -->
+                    <section id="customersView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-users"></i> Registered Customers
+                        </div>
+
+                        <div class="white-box-card">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Customer ID</th>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Phone</th>
+                                            <th>City / Location</th>
+                                            <th>Orders</th>
+                                            <th>Joined Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <asp:Repeater ID="rptCustomersTable" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-id-bold"><%# Eval("user_id_display") %></td>
+                                                    <td class="table-cust-name"><%# Eval("name") %></td>
+                                                    <td><%# Eval("email") %></td>
+                                                    <td><%# Eval("phone") %></td>
+                                                    <td><%# Eval("city") %></td>
+                                                    <td><strong style="color:var(--primary);"><%# Eval("order_count") %> Orders</strong></td>
+                                                    <td style="color:#64748b;"><%# Eval("date_formatted") %></td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 7: REVIEWS & RATINGS ================= -->
+                    <section id="reviewsView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-star"></i> Reviews &amp; Customer Ratings
+                        </div>
+
+                        <div class="white-box-card">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Customer</th>
+                                            <th>Rating</th>
+                                            <th>Review Comment</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <asp:Repeater ID="rptReviewsTable" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-cust-name"><%# Eval("product_name") %></td>
+                                                    <td><%# Eval("customer_name") %></td>
+                                                    <td style="color:#f59e0b; font-weight:800;">&#9733; <%# Eval("rating", "{0:0.0}") %></td>
+                                                    <td style="max-width:280px; font-size:12.5px; color:#475569;">"<%# Eval("comment") %>"</td>
+                                                    <td><span class="status-badge completed"><%# Eval("status") %></span></td>
+                                                    <td style="color:#64748b; font-size:12px;"><%# Eval("date_formatted") %></td>
+                                                    <td>
+                                                        <asp:LinkButton ID="btnDelRev" runat="server" CssClass="btn-card-delete" CommandArgument='<%# Eval("id") %>' OnClick="btnDeleteReview_Click" OnClientClick="return confirm('Delete this customer review?');">Delete</asp:LinkButton>
+                                                    </td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 8: DISCOUNTS & COUPONS ================= -->
+                    <section id="discountsView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-ticket"></i> Discounts &amp; Coupons
+                        </div>
+
+                        <!-- Add Coupon Form -->
+                        <div class="white-box-card">
+                            <div id="couponValError" class="validation-error-banner"></div>
+                            <div class="card-header-title" style="margin-bottom: 16px;">
+                                <i class="fa-solid fa-plus-circle"></i> Create New Coupon
+                            </div>
+                            <div class="form-grid-three">
+                                <div class="form-group">
+                                    <label>Coupon Code <span class="req">*</span></label>
+                                    <asp:TextBox ID="txtNewCouponCode" runat="server" CssClass="form-control-input" placeholder="e.g. TEXTILES20" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Discount Type</label>
+                                    <asp:DropDownList ID="ddlNewCouponType" runat="server" CssClass="form-control-input">
+                                        <asp:ListItem Value="Percentage">Percentage (%)</asp:ListItem>
+                                        <asp:ListItem Value="Flat">Flat (₹)</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+                                <div class="form-group">
+                                    <label>Discount Value <span class="req">*</span></label>
+                                    <asp:TextBox ID="txtNewCouponValue" runat="server" CssClass="form-control-input" placeholder="20" />
+                                </div>
+                            </div>
+                            <div class="form-grid-three">
+                                <div class="form-group">
+                                    <label>Minimum Order (&#8377;)</label>
+                                    <asp:TextBox ID="txtNewCouponMinOrder" runat="server" CssClass="form-control-input" Text="0" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Expiry Date <span class="req">*</span></label>
+                                    <asp:TextBox ID="txtNewCouponExpiry" runat="server" TextMode="Date" CssClass="form-control-input" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <asp:DropDownList ID="ddlNewCouponStatus" runat="server" CssClass="form-control-input">
+                                        <asp:ListItem Value="Active">Active</asp:ListItem>
+                                        <asp:ListItem Value="Inactive">Inactive</asp:ListItem>
+                                    </asp:DropDownList>
+                                </div>
+                            </div>
+                            <asp:Button ID="btnSaveCoupon" runat="server" CssClass="btn-submit-green" Text="+ Add Coupon" OnClick="btnSaveCoupon_Click" OnClientClick="return validateCouponForm();" />
+                        </div>
+
+                        <!-- Coupons Table -->
+                        <div class="white-box-card">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Coupon Code</th>
+                                            <th>Discount</th>
+                                            <th>Min Order</th>
+                                            <th>Expiry Date</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <asp:Repeater ID="rptCouponsTable" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-id-bold" style="color:var(--primary);"><%# Eval("code") %></td>
+                                                    <td><strong><%# Eval("discount_display") %></strong></td>
+                                                    <td>&#8377;<%# Eval("min_order", "{0:N0}") %></td>
+                                                    <td style="color:#64748b;"><%# Eval("date_formatted") %></td>
+                                                    <td><span class="status-badge completed"><%# Eval("status") %></span></td>
+                                                    <td>
+                                                        <asp:LinkButton ID="btnDelCpn" runat="server" CssClass="btn-card-delete" CommandArgument='<%# Eval("id") %>' OnClick="btnDeleteCoupon_Click" OnClientClick="return confirm('Delete this coupon?');">Delete</asp:LinkButton>
+                                                    </td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 9: CONTACT SUBMISSIONS ================= -->
+                    <section id="contactView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-envelope"></i> Contact Submissions &amp; Inquiries
+                        </div>
+
+                        <div class="white-box-card">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Sender Name</th>
+                                            <th>Email</th>
+                                            <th>Subject</th>
+                                            <th>Message</th>
+                                            <th>Date Received</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <asp:Repeater ID="rptContactTable" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-id-bold">#<%# Eval("id") %></td>
+                                                    <td class="table-cust-name"><%# Eval("name") %></td>
+                                                    <td><a href='<%# "mailto:" + Eval("email") %>' style="color:var(--primary); text-decoration:none;"><%# Eval("email") %></a></td>
+                                                    <td><strong><%# Eval("subject") %></strong></td>
+                                                    <td style="max-width:300px; font-size:12.5px; color:#475569;"><%# Eval("message") %></td>
+                                                    <td style="color:#64748b; font-size:12px;"><%# Eval("date_formatted") %></td>
+                                                    <td>
+                                                        <asp:LinkButton ID="btnDelMsg" runat="server" CssClass="btn-card-delete" CommandArgument='<%# Eval("id") %>' OnClick="btnDeleteMessage_Click" OnClientClick="return confirm('Delete this contact message?');">Delete</asp:LinkButton>
+                                                    </td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 10: CATEGORIES & COLLECTIONS ================= -->
+                    <section id="categoriesView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-layer-group"></i> Categories &amp; Collections
+                        </div>
+
+                        <div class="products-cards-grid">
+                            <asp:Repeater ID="rptCategoriesGrid" runat="server">
+                                <ItemTemplate>
+                                    <div class="white-box-card" style="margin-bottom:0;">
+                                        <div style="font-size:18px; font-weight:800; color:var(--text-main); margin-bottom:6px;"><%# Eval("category") %></div>
+                                        <div style="color:var(--text-muted); font-size:13px; margin-bottom:12px;"><%# Eval("prod_count") %> Products Live</div>
+                                        <div class="stock-total-badge">Total Stock: <%# Eval("total_stock") %> units</div>
+                                    </div>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 11: COLORS & VARIANTS ================= -->
+                    <section id="colorsView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-palette"></i> Colors &amp; Garment Variants
+                        </div>
+
+                        <div class="products-cards-grid">
+                            <asp:Repeater ID="rptColorsGrid" runat="server">
+                                <ItemTemplate>
+                                    <div class="white-box-card" style="display:flex; align-items:center; gap:16px; margin-bottom:0;">
+                                        <div style='<%# "width:48px; height:48px; border-radius:12px; border:2px solid #e2e8f0; background-color:" + Eval("hex_code") %>'></div>
+                                        <div>
+                                            <div style="font-size:16px; font-weight:800;"><%# Eval("color_name") %></div>
+                                            <div style="font-size:12px; color:#64748b;"><%# Eval("product_count") %> Items in Catalog</div>
+                                        </div>
+                                    </div>
+                                </ItemTemplate>
+                            </asp:Repeater>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 12: SHIPPING & DELIVERY ================= -->
+                    <section id="shippingView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-truck"></i> Shipping &amp; Logistics
+                        </div>
+
+                        <div class="white-box-card">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Order #</th>
+                                            <th>Recipient</th>
+                                            <th>Courier Partner</th>
+                                            <th>Destination</th>
+                                            <th>Status</th>
+                                            <th>Estimated Delivery</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <asp:Repeater ID="rptShippingTable" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-id-bold">#<%# Eval("id") %></td>
+                                                    <td class="table-cust-name"><%# Eval("customer_name") %></td>
+                                                    <td><i class="fa-solid fa-box" style="color:var(--primary);"></i> BlueDart Express</td>
+                                                    <td><%# Eval("city") %></td>
+                                                    <td><span class='status-badge <%# Eval("order_status").ToString().ToLower() %>'><%# Eval("order_status") %></span></td>
+                                                    <td style="color:#64748b; font-size:12.5px;">2-4 Business Days</td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 13: RETURNS & REFUNDS ================= -->
+                    <section id="returnsView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-rotate-left"></i> Returns &amp; Exchange Requests
+                        </div>
+
+                        <div class="white-box-card">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Return ID</th>
+                                            <th>Order #</th>
+                                            <th>Customer</th>
+                                            <th>Garments &amp; Return Reason</th>
+                                            <th>Refund Amount</th>
+                                            <th>Requested Date</th>
+                                            <th>Current Status</th>
+                                            <th>Process Request</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <asp:Repeater ID="rptAdminReturnsTable" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-id-bold">#RET-<%# Eval("id") %></td>
+                                                    <td>
+                                                        <strong style="color:var(--primary);">#<%# Eval("order_number") %></strong>
+                                                    </td>
+                                                    <td>
+                                                        <div class="table-cust-name"><%# Eval("customer_name") %></div>
+                                                        <div class="table-cust-sub"><%# Eval("user_email") %></div>
+                                                    </td>
+                                                    <td style="max-width: 250px;">
+                                                        <div style="font-weight: 700; color: #1e293b; font-size: 13px;"><%# Eval("product_names") %></div>
+                                                        <div style="font-size: 12px; color: #be185d; font-weight: 600; margin-top: 2px;"><i class="fa-solid fa-tag"></i> Reason: <%# Eval("reason") %></div>
+                                                        <div style="font-size: 11.5px; color: #64748b; font-style: italic; margin-top: 2px;"><%# Eval("comments") %></div>
+                                                    </td>
+                                                    <td class="table-price-bold" style="color: #be185d;">
+                                                        &#8377;<%# Eval("refund_amount", "{0:N0}") %>
+                                                    </td>
+                                                    <td style="color:#64748b; font-size:12.5px;">
+                                                        <%# Convert.ToDateTime(Eval("requested_at")).ToString("dd MMM yyyy, hh:mm tt") %>
+                                                    </td>
+                                                    <td>
+                                                        <span class='badge-return return-<%# Eval("return_status").ToString().ToLower() %>'>
+                                                            <%# Eval("return_status") %>
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <select class="table-action-select" onchange="quickUpdateReturnStatus('<%# Eval("id") %>', '<%# Eval("order_number") %>', this.value)">
+                                                            <option value="Pending" <%# Eval("return_status").ToString().Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Pending</option>
+                                                            <option value="Approved" <%# Eval("return_status").ToString().Equals("Approved", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Approved</option>
+                                                            <option value="Rejected" <%# Eval("return_status").ToString().Equals("Rejected", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Rejected</option>
+                                                            <option value="Completed" <%# Eval("return_status").ToString().Equals("Completed", StringComparison.OrdinalIgnoreCase) ? "selected" : "" %>>Completed (Refunded)</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 14: LOW STOCK ALERTS ================= -->
+                    <section id="lowStockView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Low Stock Alerts
+                        </div>
+
+                        <div class="white-box-card">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Product Name</th>
+                                            <th>Category</th>
+                                            <th>S</th>
+                                            <th>M</th>
+                                            <th>L</th>
+                                            <th>XL</th>
+                                            <th>XXL</th>
+                                            <th>Total Stock</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <asp:Repeater ID="rptLowStockList" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-cust-name"><%# Eval("name") %></td>
+                                                    <td><%# Eval("category") %></td>
+                                                    <td><span class="size-badge-pill"><%# Eval("stock_s") %></span></td>
+                                                    <td><span class="size-badge-pill"><%# Eval("stock_m") %></span></td>
+                                                    <td><span class="size-badge-pill"><%# Eval("stock_l") %></span></td>
+                                                    <td><span class="size-badge-pill"><%# Eval("stock_xl") %></span></td>
+                                                    <td><span class="size-badge-pill"><%# Eval("stock_xxl") %></span></td>
+                                                    <td>
+                                                        <strong style='<%# Convert.ToInt32(Eval("stock")) <= 5 ? "color:#dc2626;" : "color:#d97706;" %>'>
+                                                            <%# Eval("stock") %> units
+                                                        </strong>
+                                                    </td>
+                                                    <td>
+                                                        <button type="button" class="btn-card-details" onclick="switchNav('sizeStock', document.querySelectorAll('.sidebar-nav a')[4])">Restock Size</button>
+                                                    </td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 15: SALES ANALYTICS ================= -->
                     <section id="reportsView" class="admin-view">
-                        
-                        <!-- 6 Stat Cards Matching Screenshot 4 -->
-                        <div class="stat-cards-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 22px;">
-                            <!-- Row 1 -->
-                            <div class="stat-card blue">
-                                <div class="stat-number">&#8377;7,044</div>
-                                <div class="stat-title">Total Sales</div>
-                                <div class="stat-subtitle">All orders combined</div>
-                            </div>
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-chart-line"></i> Sales Analytics &amp; Reports
+                        </div>
 
-                            <div class="stat-card green">
-                                <div class="stat-number">5</div>
-                                <div class="stat-title">Total Orders</div>
-                                <div class="stat-subtitle">All time</div>
+                        <div class="stat-cards-six-grid">
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num">&#8377;<asp:Label ID="lblReportSales" runat="server" Text="40,904" /></div>
+                                    <div class="stat-card-label">Total Revenue</div>
+                                </div>
+                                <div class="stat-card-squircle currency">Rs</div>
                             </div>
-
-                            <div class="stat-card orange">
-                                <div class="stat-number">5</div>
-                                <div class="stat-title">Total Customers</div>
-                                <div class="stat-subtitle">Registered users</div>
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num">25</div>
+                                    <div class="stat-card-label">Completed Orders</div>
+                                </div>
+                                <div class="stat-card-squircle"><i class="fa-solid fa-cart-shopping"></i></div>
                             </div>
-
-                            <!-- Row 2 -->
-                            <div class="stat-card purple">
-                                <div class="stat-number">&#8377;1,409</div>
-                                <div class="stat-title">Average Order Value</div>
-                                <div class="stat-subtitle">Per order</div>
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num">&#8377;1,636</div>
+                                    <div class="stat-card-label">Avg Order Value</div>
+                                </div>
+                                <div class="stat-card-squircle currency">AOV</div>
                             </div>
-
-                            <div class="stat-card teal">
-                                <div class="stat-number">162</div>
-                                <div class="stat-title">Products in Stock</div>
-                                <div class="stat-subtitle">Total units</div>
-                            </div>
-
-                            <div class="stat-card red">
-                                <div class="stat-number">2</div>
-                                <div class="stat-title">Pending Orders</div>
-                                <div class="stat-subtitle">Needs attention</div>
+                            <div class="stat-card-clean">
+                                <div>
+                                    <div class="stat-card-num">94.2%</div>
+                                    <div class="stat-card-label">Order Fulfillment Rate</div>
+                                </div>
+                                <div class="stat-card-squircle"><i class="fa-solid fa-check-double"></i></div>
                             </div>
                         </div>
 
-                        <!-- Order Status Summary Table Matching Screenshot 4 -->
-                        <div class="white-card">
-                            <h2 class="card-heading">Order Status Summary</h2>
-                            
-                            <table class="blue-table" style="box-shadow:none;">
-                                <thead>
-                                    <tr>
-                                        <th>Status</th>
-                                        <th>Count</th>
-                                        <th>Revenue</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Delivered</td>
-                                        <td class="table-price-bold">2</td>
-                                        <td><strong>&#8377;3,198</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Shipped</td>
-                                        <td class="table-price-bold">1</td>
-                                        <td><strong>&#8377;799</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Processing</td>
-                                        <td class="table-price-bold">1</td>
-                                        <td><strong>&#8377;1,299</strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Pending</td>
-                                        <td class="table-price-bold">1</td>
-                                        <td><strong>&#8377;1,848</strong></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="white-box-card" style="margin-top: 20px;">
+                            <h3 style="font-size: 15px; font-weight: 700; color: #1e293b; margin: 0 0 15px; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-money-bill-wave" style="color: #10b981;"></i> Payment &amp; Channel Breakdown
+                            </h3>
+                            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 18px 22px; display: flex; align-items: center; justify-content: space-between;">
+                                <div>
+                                    <div style="font-size: 16px; font-weight: 800; color: #166534; display: flex; align-items: center; gap: 8px;">
+                                        <i class="fa-solid fa-hand-holding-dollar"></i> Cash on Delivery (COD) Only
+                                    </div>
+                                    <div style="font-size: 13px; color: #15803d; margin-top: 4px;">
+                                        100% of all store transactions are processed securely via Cash on Delivery upon shipment arrival.
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 22px; font-weight: 800; color: #166534;">
+                                        &#8377;<asp:Label ID="lblReportCodSales" runat="server" Text="40,904" />
+                                    </div>
+                                    <div style="font-size: 12px; font-weight: 700; color: #15803d; text-transform: uppercase;">
+                                        100% COD Share
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 16: ADMIN USERS & ROLES ================= -->
+                    <section id="adminUsersView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-user-shield"></i> Admin Users &amp; Roles
                         </div>
 
+                        <div class="white-box-card">
+                            <div class="clean-table-responsive">
+                                <table class="clean-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Admin ID</th>
+                                            <th>Username</th>
+                                            <th>Email</th>
+                                            <th>Assigned Role</th>
+                                            <th>Permissions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <asp:Repeater ID="rptAdminUsersTable" runat="server">
+                                            <ItemTemplate>
+                                                <tr>
+                                                    <td class="table-id-bold">#ADM-<%# Eval("id") %></td>
+                                                    <td class="table-cust-name"><%# Eval("username") %></td>
+                                                    <td><%# Eval("email") %></td>
+                                                    <td><span class="status-badge processing"><%# Eval("role") %></span></td>
+                                                    <td style="color:#64748b; font-size:12.5px;">Full Store &amp; Database Access</td>
+                                                </tr>
+                                            </ItemTemplate>
+                                        </asp:Repeater>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ================= VIEW 17: STORE SETTINGS ================= -->
+                    <section id="settingsView" class="admin-view">
+                        <div class="view-page-title">
+                            <i class="fa-solid fa-gear"></i> Store Settings &amp; Configuration
+                        </div>
+
+                        <div class="white-box-card">
+                            <div class="form-grid-two">
+                                <div class="form-group">
+                                    <label>Store Name</label>
+                                    <input type="text" class="form-control-input" value="TEXTILES Men's Clothing" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Currency</label>
+                                    <input type="text" class="form-control-input" value="INR (&#8377; - Indian Rupee)" readonly />
+                                </div>
+                            </div>
+                            <div class="form-grid-two">
+                                <div class="form-group">
+                                    <label>Support Email</label>
+                                    <input type="text" class="form-control-input" value="support@textiles.com" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Support Phone</label>
+                                    <input type="text" class="form-control-input" value="+91 98251 44520" readonly />
+                                </div>
+                            </div>
+                            <div class="form-grid-two">
+                                <div class="form-group">
+                                    <label>Shipping Fee Policy</label>
+                                    <input type="text" class="form-control-input" value="Free Shipping on all orders above &#8377;999" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Inventory Low Stock Threshold</label>
+                                    <input type="text" class="form-control-input" value="Under 5 units per size" readonly />
+                                </div>
+                            </div>
+                        </div>
                     </section>
 
                 </div>
             </main>
         </div>
 
-        <!-- ================= ADD / EDIT PRODUCT MODAL WITH VALIDATION ================= -->
-        <div id="productModal" class="modal-overlay">
+        <!-- Quick Details Modal -->
+        <div id="detailsModal" class="modal-overlay">
             <div class="modal-box">
                 <div class="modal-header">
-                    <h3 id="modalTitle">Add New Product</h3>
-                    <button type="button" class="modal-close-btn" onclick="closeProductModal()">&times;</button>
+                    <h3 id="dtlTitle" style="font-size:16px; font-weight:800;">Product Details</h3>
+                    <button type="button" class="modal-close" onclick="closeDetailsModal()">&times;</button>
                 </div>
-
-                <div class="modal-body">
-                    <!-- Product Name -->
-                    <div class="form-group-item">
-                        <label>Product Name <span style="color:#dc2626;">*</span></label>
-                        <asp:TextBox ID="txtProductName" runat="server" CssClass="form-input-ctrl" placeholder="e.g. Classic Linen Shirt" />
-                        <span id="errProductName" class="field-validation-error">Product name is required.</span>
-                    </div>
-
-                    <!-- Category & Stock -->
-                    <div class="form-row-2">
-                        <div class="form-group-item">
-                            <label>Category <span style="color:#dc2626;">*</span></label>
-                            <asp:DropDownList ID="ddlCategory" runat="server" CssClass="form-input-ctrl">
-                                <asp:ListItem Text="Shirts" Value="Shirts" />
-                                <asp:ListItem Text="T-Shirts" Value="TShirts" />
-                                <asp:ListItem Text="Hoodies" Value="Hoodies" />
-                                <asp:ListItem Text="Jackets" Value="Jackets" />
-                                <asp:ListItem Text="Jeans" Value="Jeans" />
-                            </asp:DropDownList>
-                            <span id="errCategory" class="field-validation-error">Category is required.</span>
-                        </div>
-
-                        <div class="form-group-item">
-                            <label>Stock Quantity <span style="color:#dc2626;">*</span></label>
-                            <asp:TextBox ID="txtStock" runat="server" CssClass="form-input-ctrl" placeholder="e.g. 50" />
-                            <span id="errStock" class="field-validation-error">Valid positive stock quantity required.</span>
-                        </div>
-                    </div>
-
-                    <!-- Price & MRP -->
-                    <div class="form-row-2">
-                        <div class="form-group-item">
-                            <label>Selling Price (&#8377;) <span style="color:#dc2626;">*</span></label>
-                            <asp:TextBox ID="txtPrice" runat="server" CssClass="form-input-ctrl" placeholder="e.g. 799.00" />
-                            <span id="errPrice" class="field-validation-error">Valid numeric price is required (e.g. 799).</span>
-                        </div>
-
-                        <div class="form-group-item">
-                            <label>Original MRP (&#8377;)</label>
-                            <asp:TextBox ID="txtOriginalPrice" runat="server" CssClass="form-input-ctrl" placeholder="e.g. 1199.00" />
-                            <span id="errOriginalPrice" class="field-validation-error">Please enter a valid numeric amount.</span>
-                        </div>
-                    </div>
-
-                    <!-- Image URL -->
-                    <div class="form-group-item">
-                        <label>Image URL <span style="color:#dc2626;">*</span></label>
-                        <asp:TextBox ID="txtImageUrl" runat="server" CssClass="form-input-ctrl" placeholder="https://... or images/product.jpg" />
-                        <span id="errImageUrl" class="field-validation-error">Image URL or path is required.</span>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="form-group-item">
-                        <label>Description</label>
-                        <asp:TextBox ID="txtDescription" runat="server" TextMode="MultiLine" Rows="3" CssClass="form-input-ctrl" placeholder="Enter garment fabric, weave, fit details..." />
+                <div style="display:flex; gap:16px; margin-bottom:14px;">
+                    <img id="dtlImg" src="" style="width:110px; height:110px; object-fit:cover; border-radius:10px;" alt="product" />
+                    <div>
+                        <div id="dtlName" style="font-size:15px; font-weight:800; margin-bottom:4px;"></div>
+                        <div id="dtlCategory" style="font-size:12.5px; color:#64748b; margin-bottom:6px;"></div>
+                        <div id="dtlPrice" style="font-size:17px; font-weight:800; color:var(--primary);"></div>
                     </div>
                 </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn-modal-cancel" onclick="closeProductModal()">Cancel</button>
-                    <!-- Server Button with Client Validation Trigger -->
-                    <asp:Button ID="btnAddProduct" runat="server" Text="Save Product" OnClick="btnAddProduct_Click"
-                        OnClientClick="return validateProductForm();" CssClass="btn-add-primary" />
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= MANAGE ORDER MODAL (3 TO 4 STATUS CONTROLLER) ================= -->
-        <div id="manageOrderModal" class="modal-overlay">
-            <div class="modal-box" style="max-width: 660px;">
-                <div class="modal-header">
-                    <h3>Manage Order: <span id="mOrdNumberTitle">ORD-1001</span></h3>
-                    <button type="button" class="modal-close-btn" onclick="closeManageOrderModal()">&times;</button>
-                </div>
-
-                <div class="modal-body">
-                    <!-- Customer and Order Information Overview -->
-                    <div class="order-info-grid">
-                        <div class="order-info-item">
-                            <strong>Customer Name</strong>
-                            <span id="mOrdCustomer">Tirth Kotak</span>
-                        </div>
-                        <div class="order-info-item">
-                            <strong>Order Date</strong>
-                            <span id="mOrdDate">2026-07-28</span>
-                        </div>
-                        <div class="order-info-item">
-                            <strong>Email Address</strong>
-                            <span id="mOrdEmail">tirth.kotak@example.com</span>
-                        </div>
-                        <div class="order-info-item">
-                            <strong>Phone Number</strong>
-                            <span id="mOrdPhone">+91 98251 44520</span>
-                        </div>
-                        <div class="order-info-item" style="grid-column: span 2;">
-                            <strong>Delivery Shipping Address</strong>
-                            <span id="mOrdAddress">A-402 Royal Residency, Palace Road, Rajkot, Gujarat</span>
-                        </div>
-                        <div class="order-info-item">
-                            <strong>Payment Method</strong>
-                            <span id="mOrdPaymentMethod">Cash on Delivery (COD)</span>
-                        </div>
-                        <div class="order-info-item">
-                            <strong>Total Order Amount</strong>
-                            <span id="mOrdTotalAmount" style="color:#1565c0; font-size:16px;">&#8377;1,999</span>
-                        </div>
-                    </div>
-
-                    <!-- 3 to 4 Order Status Management Controller -->
-                    <div class="status-update-box">
-                        <h4><i class="fa-solid fa-list-check"></i> Manage Order Status (Select 1 of 4 States):</h4>
-                        
-                        <!-- Hidden field holding active order number -->
-                        <asp:HiddenField ID="hdnManageOrderNumber" runat="server" />
-
-                        <div class="form-row-2" style="margin-bottom:0;">
-                            <div class="form-group-item">
-                                <label>Delivery Order Status <span style="color:#dc2626;">*</span></label>
-                                <asp:DropDownList ID="ddlManageOrderStatus" runat="server" CssClass="form-input-ctrl">
-                                    <asp:ListItem Text="🟡 Pending (Order Received)" Value="Pending" />
-                                    <asp:ListItem Text="🟠 Processing (Packing & Ready)" Value="Processing" />
-                                    <asp:ListItem Text="🔵 Shipped (Dispatched in Transit)" Value="Shipped" />
-                                    <asp:ListItem Text="🟢 Delivered (Completed)" Value="Delivered" />
-                                    <asp:ListItem Text="🔴 Cancelled (Order Void)" Value="Cancelled" />
-                                </asp:DropDownList>
-                            </div>
-
-                            <div class="form-group-item">
-                                <label>Payment Status</label>
-                                <asp:DropDownList ID="ddlManagePaymentStatus" runat="server" CssClass="form-input-ctrl">
-                                    <asp:ListItem Text="Paid (Payment Received)" Value="Paid" />
-                                    <asp:ListItem Text="Pending (Payment Due / COD)" Value="Pending" />
-                                </asp:DropDownList>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn-modal-cancel" onclick="closeManageOrderModal()">Close</button>
-                    <!-- Server Button with Client Handler to update UI and DB -->
-                    <asp:Button ID="btnUpdateOrderStatus" runat="server" Text="Update Order Status" OnClick="btnUpdateOrderStatus_Click"
-                        OnClientClick="return handleClientOrderUpdate();" CssClass="btn-add-primary" />
+                <p id="dtlDesc" style="font-size:13px; color:#475569; line-height:1.5; margin-bottom:16px;"></p>
+                <div style="text-align:right;">
+                    <button type="button" class="btn-card-details" onclick="closeDetailsModal()">Close</button>
                 </div>
             </div>
         </div>
@@ -1513,202 +2247,308 @@
     </form>
 
     <script>
-        // Tab Switcher
+        // ================= NAVIGATION VIEW SWITCHER =================
+        var currentActiveView = 'dashboard';
+
+        var viewTitles = {
+            'dashboard': { title: 'Dashboard', sub: 'Monitor key metrics and recent activity.' },
+            'addProduct': { title: 'Add Product', sub: 'Create new products with sizes, images, and stock.' },
+            'manageProducts': { title: 'Manage Products', sub: 'Update product status, review stars, and moderate catalog.' },
+            'categories': { title: 'Categories & Collections', sub: 'Manage garment product lines and classifications.' },
+            'sizeStock': { title: 'Size-wise Stock', sub: 'View and update product stock by size in one place.' },
+            'colors': { title: 'Colors & Variants', sub: 'Manage fabric colorways and garment finishes.' },
+            'orders': { title: 'Orders', sub: 'Track orders and update their current fulfillment status.' },
+            'shipping': { title: 'Shipping & Delivery', sub: 'Monitor shipments, dispatch status, and couriers.' },
+            'returns': { title: 'Returns & Refunds', sub: 'Process customer returns and exchange requests.' },
+            'customers': { title: 'Customers', sub: 'View registered store shoppers and purchasing history.' },
+            'reviews': { title: 'Reviews & Ratings', sub: 'Moderate customer feedback and star ratings.' },
+            'discounts': { title: 'Discounts & Coupons', sub: 'Create promotional vouchers, sales, and cart discounts.' },
+            'contact': { title: 'Contact Submissions', sub: 'Manage inquiries submitted through website contact form.' },
+            'lowStock': { title: 'Low Stock Alerts', sub: 'Real-time alert for garments running out of inventory.' },
+            'reports': { title: 'Sales Analytics', sub: 'Revenue insights, average order values, and sales charts.' },
+            'adminUsers': { title: 'Admin Users & Roles', sub: 'Configure team member accounts and administrative permissions.' },
+            'settings': { title: 'Store Settings', sub: 'Configure shop preferences, policies, and contact information.' }
+        };
+
         function switchNav(viewName, clickedElement) {
-            // Update sidebar links
-            document.querySelectorAll('.sidebar-menu a').forEach(function(a) {
+            currentActiveView = viewName;
+            var hdn = document.getElementById('<%= hdnActiveView.ClientID %>');
+            if (hdn) hdn.value = viewName;
+
+            // Remove active from all sidebar links
+            document.querySelectorAll('.sidebar-nav a').forEach(function (a) {
                 a.classList.remove('active');
             });
+
+            // If clickedElement provided, add active; otherwise find link by viewName
             if (clickedElement) {
                 clickedElement.classList.add('active');
-            }
-
-            // Update visible view
-            document.querySelectorAll('.admin-view').forEach(function(view) {
-                view.classList.remove('active');
-            });
-            var targetView = document.getElementById(viewName + 'View');
-            if (targetView) {
-                targetView.classList.add('active');
-            }
-
-            // Update topbar title
-            var titles = {
-                'dashboard': 'Dashboard',
-                'products': 'Products',
-                'orders': 'Orders',
-                'users': 'Users',
-                'reports': 'Reports'
-            };
-            var topbarTitle = document.getElementById('topbarTitle');
-            if (topbarTitle && titles[viewName]) {
-                topbarTitle.innerText = titles[viewName];
-            }
-        }
-
-        // ================= PRODUCT MODAL =================
-        function openAddProductModal() {
-            document.getElementById('modalTitle').innerText = 'Add New Product';
-            document.getElementById('productModal').classList.add('open');
-            clearValidation();
-        }
-
-        function openEditProductModal(name, cat, price, stock, img) {
-            document.getElementById('modalTitle').innerText = 'Edit Product';
-            document.getElementById('<%= txtProductName.ClientID %>').value = name || '';
-            document.getElementById('<%= ddlCategory.ClientID %>').value = cat || 'Shirts';
-            document.getElementById('<%= txtPrice.ClientID %>').value = price || '';
-            document.getElementById('<%= txtStock.ClientID %>').value = stock || '';
-            document.getElementById('<%= txtImageUrl.ClientID %>').value = img || '';
-            document.getElementById('productModal').classList.add('open');
-            clearValidation();
-        }
-
-        function closeProductModal() {
-            document.getElementById('productModal').classList.remove('open');
-            clearValidation();
-        }
-
-        function validateProductForm() {
-            var isValid = true;
-            var txtName = document.getElementById('<%= txtProductName.ClientID %>');
-            var errName = document.getElementById('errProductName');
-            var txtPrice = document.getElementById('<%= txtPrice.ClientID %>');
-            var errPrice = document.getElementById('errPrice');
-            var txtStock = document.getElementById('<%= txtStock.ClientID %>');
-            var errStock = document.getElementById('errStock');
-            var txtImg = document.getElementById('<%= txtImageUrl.ClientID %>');
-            var errImg = document.getElementById('errImageUrl');
-
-            // 1. Validate Name
-            if (!txtName.value || txtName.value.trim() === '') {
-                txtName.classList.add('input-error');
-                errName.classList.add('show');
-                isValid = false;
             } else {
-                txtName.classList.remove('input-error');
-                errName.classList.remove('show');
-            }
-
-            // 2. Validate Price
-            var priceVal = parseFloat(txtPrice.value.trim());
-            if (!txtPrice.value || isNaN(priceVal) || priceVal <= 0) {
-                txtPrice.classList.add('input-error');
-                errPrice.classList.add('show');
-                isValid = false;
-            } else {
-                txtPrice.classList.remove('input-error');
-                errPrice.classList.remove('show');
-            }
-
-            // 3. Validate Stock
-            var stockVal = parseInt(txtStock.value.trim(), 10);
-            if (!txtStock.value || isNaN(stockVal) || stockVal < 0) {
-                txtStock.classList.add('input-error');
-                errStock.classList.add('show');
-                isValid = false;
-            } else {
-                txtStock.classList.remove('input-error');
-                errStock.classList.remove('show');
-            }
-
-            // 4. Validate Image URL
-            if (!txtImg.value || txtImg.value.trim() === '') {
-                txtImg.classList.add('input-error');
-                errImg.classList.add('show');
-                isValid = false;
-            } else {
-                txtImg.classList.remove('input-error');
-                errImg.classList.remove('show');
-            }
-
-            return isValid;
-        }
-
-        function clearValidation() {
-            document.querySelectorAll('.form-input-ctrl').forEach(function(inp) {
-                inp.classList.remove('input-error');
-            });
-            document.querySelectorAll('.field-validation-error').forEach(function(err) {
-                err.classList.remove('show');
-            });
-        }
-
-        // ================= MANAGE ORDER MODAL (3 TO 4 STATUSES) =================
-        function openManageOrderModal(orderNum, custName, email, phone, address, amount, payMethod, payStatus, orderStatus, date) {
-            document.getElementById('mOrdNumberTitle').innerText = orderNum;
-            document.getElementById('mOrdCustomer').innerText = custName || 'Valued Customer';
-            document.getElementById('mOrdDate').innerText = date || '2026-08-01';
-            document.getElementById('mOrdEmail').innerText = email || 'customer@example.com';
-            document.getElementById('mOrdPhone').innerText = phone || '+91 98765 43210';
-            document.getElementById('mOrdAddress').innerText = address || 'Palace Road, Rajkot, Gujarat - 360001';
-            document.getElementById('mOrdPaymentMethod').innerText = (payMethod || 'COD') + ' (' + (payStatus || 'Paid') + ')';
-            document.getElementById('mOrdTotalAmount').innerText = '₹' + amount;
-
-            // Set hidden field & dropdowns
-            var hdnOrd = document.getElementById('<%= hdnManageOrderNumber.ClientID %>');
-            if (hdnOrd) hdnOrd.value = orderNum;
-
-            var ddlStatus = document.getElementById('<%= ddlManageOrderStatus.ClientID %>');
-            if (ddlStatus) {
-                for (var i = 0; i < ddlStatus.options.length; i++) {
-                    if (ddlStatus.options[i].value.toLowerCase() === (orderStatus || '').toLowerCase()) {
-                        ddlStatus.selectedIndex = i;
+                var links = document.querySelectorAll('.sidebar-nav a');
+                for (var i = 0; i < links.length; i++) {
+                    var oc = links[i].getAttribute('onclick') || '';
+                    if (oc.indexOf("'" + viewName + "'") > -1) {
+                        links[i].classList.add('active');
                         break;
                     }
                 }
             }
 
-            var ddlPay = document.getElementById('<%= ddlManagePaymentStatus.ClientID %>');
-            if (ddlPay) {
-                ddlPay.value = (payStatus && payStatus.toLowerCase() === 'pending') ? 'Pending' : 'Paid';
+            // Hide all views, show targeted view
+            document.querySelectorAll('.admin-view').forEach(function (view) {
+                view.classList.remove('active');
+            });
+
+            var target = document.getElementById(viewName + 'View');
+            if (target) {
+                target.classList.add('active');
             }
 
-            document.getElementById('manageOrderModal').classList.add('open');
+            // Update Topbar
+            var topTitle = document.getElementById('topbarTitle');
+            var topSub = document.getElementById('topbarSub');
+            if (viewTitles[viewName]) {
+                if (topTitle) topTitle.innerText = viewTitles[viewName].title;
+                if (topSub) topSub.innerText = viewTitles[viewName].sub;
+            }
+
+            // Scroll to top of content
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function closeManageOrderModal() {
-            document.getElementById('manageOrderModal').classList.remove('open');
+        // ================= FAST ACTIONS =================
+        function quickUpdateOrder(orderId, newStatus, returnView) {
+            document.getElementById('<%= hdnQuickOrderId.ClientID %>').value = orderId;
+            document.getElementById('<%= hdnQuickOrderStatus.ClientID %>').value = newStatus;
+            document.getElementById('<%= hdnActiveView.ClientID %>').value = returnView || 'orders';
+            document.getElementById('<%= btnQuickUpdateOrderStatus.ClientID %>').click();
         }
 
-        function handleClientOrderUpdate() {
-            var hdnOrd = document.getElementById('<%= hdnManageOrderNumber.ClientID %>');
-            var orderNum = hdnOrd ? hdnOrd.value : '';
-            var ddlStatus = document.getElementById('<%= ddlManageOrderStatus.ClientID %>');
-            var newStatus = ddlStatus ? ddlStatus.value : 'Delivered';
-
-            // Also update any demo row in UI instantly
-            var safeId = orderNum.replace('-', '');
-            var pill = document.getElementById('pill_' + safeId);
-            if (pill) {
-                pill.className = 'status-pill ' + newStatus.toLowerCase();
-                pill.innerText = newStatus;
-            }
-
-            var dashStatus = document.getElementById('dashStatus_' + safeId);
-            if (dashStatus) {
-                dashStatus.className = 'order-status-text ' + newStatus.toLowerCase();
-                dashStatus.innerText = newStatus;
-            }
-
-            // Close modal
-            closeManageOrderModal();
-            return true; // Let ASP.NET server postback update the database table!
+        function quickUpdateReturnStatus(returnId, orderNum, newStatus) {
+            document.getElementById('<%= hdnQuickReturnId.ClientID %>').value = returnId;
+            document.getElementById('<%= hdnQuickReturnOrderNum.ClientID %>').value = orderNum;
+            document.getElementById('<%= hdnQuickReturnStatus.ClientID %>').value = newStatus;
+            document.getElementById('<%= hdnActiveView.ClientID %>').value = 'returns';
+            document.getElementById('<%= btnQuickUpdateReturnStatus.ClientID %>').click();
         }
 
-        // Auto display demo table if GridView has 0 rows
-        window.addEventListener('DOMContentLoaded', function() {
-            var gvProd = document.getElementById('<%= gvProducts.ClientID %>');
-            if (!gvProd || gvProd.rows.length <= 1) {
-                var demoProd = document.getElementById('demoProductsTable');
-                if (demoProd) demoProd.style.display = 'block';
+        function quickStockAdjust(prodId, operation) {
+            var sel = document.getElementById('sel_size_' + prodId);
+            var inQty = document.getElementById('qty_' + prodId);
+            if (!sel || !inQty) return;
+
+            var size = sel.value;
+            var qty = parseInt(inQty.value, 10);
+            if (isNaN(qty) || qty <= 0) qty = 1;
+
+            document.getElementById('<%= hdnStockProdId.ClientID %>').value = prodId;
+            document.getElementById('<%= hdnStockSize.ClientID %>').value = size;
+            document.getElementById('<%= hdnStockQty.ClientID %>').value = qty;
+            document.getElementById('<%= hdnStockOp.ClientID %>').value = operation;
+            document.getElementById('<%= hdnActiveView.ClientID %>').value = 'sizeStock';
+            document.getElementById('<%= btnQuickAdjustSizeStock.ClientID %>').click();
+        }
+
+        function quickToggleProductActive(prodId, activeVal) {
+            document.getElementById('<%= hdnToggleProdId.ClientID %>').value = prodId;
+            document.getElementById('<%= hdnToggleProdActive.ClientID %>').value = activeVal;
+            document.getElementById('<%= hdnActiveView.ClientID %>').value = 'manageProducts';
+            document.getElementById('<%= btnQuickToggleActive.ClientID %>').click();
+        }
+
+        function openDetailsModal(id, name, cat, price, stock, img, desc) {
+            document.getElementById('dtlName').innerText = name;
+            document.getElementById('dtlCategory').innerText = cat;
+            document.getElementById('dtlPrice').innerHTML = '&#8377;' + price;
+            document.getElementById('dtlDesc').innerText = desc || 'Premium men\'s apparel crafted with durable styling and comfortable fit.';
+            var firstImg = (img || '').split(',')[0].trim() || 'images/product_marble_tshirt.jpg';
+            document.getElementById('dtlImg').src = firstImg;
+            document.getElementById('detailsModal').classList.add('open');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.remove('open');
+        }
+
+        // ================= CLIENT FORM VALIDATION =================
+        function validateAddProductForm() {
+            var valid = true;
+            var firstInvalid = null;
+            var banner = document.getElementById('addProductValError');
+            var errors = [];
+
+            // Reset previous error classes
+            var inputs = document.querySelectorAll('#addProductView .form-control-input');
+            for (var i = 0; i < inputs.length; i++) {
+                inputs[i].classList.remove('input-error');
             }
 
-            var gvOrd = document.getElementById('<%= gvOrders.ClientID %>');
-            if (!gvOrd || gvOrd.rows.length <= 1) {
-                var demoOrd = document.getElementById('demoOrdersTable');
-                if (demoOrd) demoOrd.style.display = 'block';
+            var nameInput = document.getElementById('<%= txtAddProdName.ClientID %>');
+            if (!nameInput || !nameInput.value.trim()) {
+                if (nameInput) nameInput.classList.add('input-error');
+                errors.push("Product Name is required.");
+                valid = false;
+                if (!firstInvalid) firstInvalid = nameInput;
             }
+
+            var priceInput = document.getElementById('<%= txtAddProdPrice.ClientID %>');
+            if (!priceInput || !priceInput.value.trim() || isNaN(priceInput.value) || parseFloat(priceInput.value) <= 0) {
+                if (priceInput) priceInput.classList.add('input-error');
+                errors.push("Price is required and must be greater than ₹0.");
+                valid = false;
+                if (!firstInvalid) firstInvalid = priceInput;
+            }
+
+            var sizesInput = document.getElementById('<%= txtAddProdSizes.ClientID %>');
+            if (!sizesInput || !sizesInput.value.trim()) {
+                if (sizesInput) sizesInput.classList.add('input-error');
+                errors.push("Sizes are required (e.g., S, M, L, XL, XXL).");
+                valid = false;
+                if (!firstInvalid) firstInvalid = sizesInput;
+            }
+
+            var imgInput = document.getElementById('<%= txtAddProdImg1.ClientID %>');
+            if (!imgInput || !imgInput.value.trim()) {
+                if (imgInput) imgInput.classList.add('input-error');
+                errors.push("Main Image URL is required.");
+                valid = false;
+                if (!firstInvalid) firstInvalid = imgInput;
+            }
+
+            var matInput = document.getElementById('<%= txtAddProdMaterial.ClientID %>');
+            if (!matInput || !matInput.value.trim()) {
+                if (matInput) matInput.classList.add('input-error');
+                errors.push("Material is required (e.g., 100% Cotton).");
+                valid = false;
+                if (!firstInvalid) firstInvalid = matInput;
+            }
+
+            var careInput = document.getElementById('<%= txtAddProdCare.ClientID %>');
+            if (!careInput || !careInput.value.trim()) {
+                if (careInput) careInput.classList.add('input-error');
+                errors.push("Care Instructions are required (e.g., Machine wash).");
+                valid = false;
+                if (!firstInvalid) firstInvalid = careInput;
+            }
+
+            var descInput = document.getElementById('<%= txtAddProdDesc.ClientID %>');
+            if (!descInput || !descInput.value.trim()) {
+                if (descInput) descInput.classList.add('input-error');
+                errors.push("Product Description is required.");
+                valid = false;
+                if (!firstInvalid) firstInvalid = descInput;
+            }
+
+            // Size stocks
+            var stockFields = [
+                { id: '<%= txtAddStockS.ClientID %>', name: 'Size S' },
+                { id: '<%= txtAddStockM.ClientID %>', name: 'Size M' },
+                { id: '<%= txtAddStockL.ClientID %>', name: 'Size L' },
+                { id: '<%= txtAddStockXL.ClientID %>', name: 'Size XL' },
+                { id: '<%= txtAddStockXXL.ClientID %>', name: 'Size XXL' }
+            ];
+
+            var totalStock = 0;
+            for (var j = 0; j < stockFields.length; j++) {
+                var sf = stockFields[j];
+                var elem = document.getElementById(sf.id);
+                if (!elem || elem.value.trim() === '' || isNaN(elem.value) || parseInt(elem.value, 10) < 0) {
+                    if (elem) elem.classList.add('input-error');
+                    errors.push(sf.name + " stock must be a non-negative number (0 or more).");
+                    valid = false;
+                    if (!firstInvalid) firstInvalid = elem;
+                } else {
+                    totalStock += parseInt(elem.value, 10);
+                }
+            }
+
+            // Size stock quantities must be non-negative (0 or higher)
+            // A newly added product can start with 0 stock across all sizes
+
+            if (!valid) {
+                if (banner) {
+                    banner.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> <div><strong>Please enter required product details:</strong><br/>' + errors.join('<br/>') + '</div>';
+                    banner.style.display = 'flex';
+                }
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstInvalid.focus();
+                }
+                return false;
+            } else {
+                if (banner) banner.style.display = 'none';
+                return true;
+            }
+        }
+
+        function validateCouponForm() {
+            var valid = true;
+            var firstInvalid = null;
+            var banner = document.getElementById('couponValError');
+            var errors = [];
+
+            var codeInp = document.getElementById('<%= txtNewCouponCode.ClientID %>');
+            var valInp = document.getElementById('<%= txtNewCouponValue.ClientID %>');
+            var minInp = document.getElementById('<%= txtNewCouponMinOrder.ClientID %>');
+            var expInp = document.getElementById('<%= txtNewCouponExpiry.ClientID %>');
+
+            var couponInputs = [codeInp, valInp, minInp, expInp];
+            for (var k = 0; k < couponInputs.length; k++) {
+                if (couponInputs[k]) couponInputs[k].classList.remove('input-error');
+            }
+
+            if (!codeInp || !codeInp.value.trim()) {
+                if (codeInp) codeInp.classList.add('input-error');
+                errors.push("Coupon Code is required.");
+                valid = false;
+                if (!firstInvalid) firstInvalid = codeInp;
+            }
+
+            if (!valInp || !valInp.value.trim() || isNaN(valInp.value) || parseFloat(valInp.value) <= 0) {
+                if (valInp) valInp.classList.add('input-error');
+                errors.push("Discount Value is required and must be greater than 0.");
+                valid = false;
+                if (!firstInvalid) firstInvalid = valInp;
+            }
+
+            if (!minInp || minInp.value.trim() === '' || isNaN(minInp.value) || parseFloat(minInp.value) < 0) {
+                if (minInp) minInp.classList.add('input-error');
+                errors.push("Minimum Order must be a valid number (0 or more).");
+                valid = false;
+                if (!firstInvalid) firstInvalid = minInp;
+            }
+
+            if (!expInp || !expInp.value.trim()) {
+                if (expInp) expInp.classList.add('input-error');
+                errors.push("Expiry Date is required.");
+                valid = false;
+                if (!firstInvalid) firstInvalid = expInp;
+            }
+
+            if (!valid) {
+                if (banner) {
+                    banner.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> <div><strong>Please complete coupon details:</strong><br/>' + errors.join('<br/>') + '</div>';
+                    banner.style.display = 'flex';
+                }
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstInvalid.focus();
+                }
+                return false;
+            } else {
+                if (banner) banner.style.display = 'none';
+                return true;
+            }
+        }
+
+        // Initialize active view on page load
+        window.addEventListener('DOMContentLoaded', function () {
+            var urlParams = new URLSearchParams(window.location.search);
+            var queryTab = urlParams.get('tab');
+            var hash = window.location.hash ? window.location.hash.replace('#', '') : '';
+            var hdn = document.getElementById('<%= hdnActiveView.ClientID %>');
+            var target = queryTab || hash || (hdn && hdn.value) || 'dashboard';
+            switchNav(target);
         });
     </script>
 </body>

@@ -46,7 +46,13 @@
             margin-bottom: 35px;
         }
 
-        .product-gallery {
+        .product-gallery-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .product-gallery-main {
             position: relative;
             background: #f8fafc;
             border-radius: 12px;
@@ -55,10 +61,46 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 480px;
+            height: 440px;
         }
 
-        .product-gallery img {
+        .product-gallery-main img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.2s ease;
+        }
+
+        .product-thumbnails-grid {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .thumb-item {
+            width: 72px;
+            height: 72px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+            background: #ffffff;
+        }
+
+        .thumb-item:hover {
+            border-color: #1967d2;
+            transform: translateY(-2px);
+        }
+
+        .thumb-item.active {
+            border-color: #1967d2;
+            box-shadow: 0 0 0 2px rgba(25, 103, 210, 0.25);
+        }
+
+        .thumb-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -280,6 +322,30 @@
             background: #1b5e20;
         }
 
+        .btn-add-wishlist {
+            background: #fff1f2;
+            color: #e11d48;
+            border: 1.5px solid #fecdd3;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-add-wishlist:hover {
+            background: #ffe4e6;
+            border-color: #fda4af;
+            color: #be123c;
+            transform: translateY(-1px);
+        }
+
         /* ================= SPECS LIST ================= */
         .product-highlights {
             background: #f8fafc;
@@ -319,6 +385,22 @@
                 flex-direction: column;
             }
         }
+        .btn-add-cart.disabled, .btn-buy-now.disabled {
+            background: #cbd5e1 !important;
+            color: #64748b !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            pointer-events: none;
+        }
+
+        .reviews-section-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
     </style>
 
     <div class="product-details-container">
@@ -335,9 +417,20 @@
 
         <!-- PRODUCT DETAILS CARD (FIGMA FIGURE 6) -->
         <div class="details-card">
-            <!-- IMAGE GALLERY -->
-            <div class="product-gallery">
-                <asp:Image ID="imgProduct" runat="server" alt="Product Image" />
+            <!-- IMAGE GALLERY (MAX 5 IMAGES WITH CLICKABLE THUMBNAILS) -->
+            <div class="product-gallery-container">
+                <div class="product-gallery-main">
+                    <asp:Image ID="imgProduct" runat="server" alt="Product Image" ClientIDMode="Static" />
+                </div>
+                <div class="product-thumbnails-grid" id="thumbnailsContainer" runat="server">
+                    <asp:Repeater ID="rptThumbnails" runat="server">
+                        <ItemTemplate>
+                            <div class='<%# "thumb-item" + (Container.ItemIndex == 0 ? " active" : "") %>' onclick="switchMainImage('<%# Container.DataItem %>', this)">
+                                <img src='<%# Container.DataItem %>' alt="Product Thumbnail" onerror="this.src='images/product_marble_tshirt.jpg'" />
+                            </div>
+                        </ItemTemplate>
+                    </asp:Repeater>
+                </div>
             </div>
 
             <!-- PRODUCT INFO -->
@@ -354,17 +447,17 @@
                         <i class="fa-solid fa-star-half-stroke"></i>
                     </div>
                     <span class="rating-text"><asp:Label ID="lblRating" runat="server"></asp:Label> / 5</span>
-                    <span class="reviews-count">(128 customer reviews)</span>
+                    <span class="reviews-count"><asp:Label ID="lblReviewsCount" runat="server">(0 customer reviews)</asp:Label></span>
                 </div>
 
                 <div class="price-section">
                     <span class="details-current-price">&#8377; <asp:Label ID="lblPrice" runat="server"></asp:Label></span>
                     <span class="details-original-price">&#8377; <asp:Label ID="lblOriginalPrice" runat="server"></asp:Label></span>
-                    <span class="discount-pill">33% OFF</span>
+                    <span class="discount-pill">Special Price</span>
                 </div>
 
-                <div class="stock-indicator">
-                    <i class="fa-solid fa-circle-check"></i> In Stock (40 units available)
+                <div class="stock-indicator" id="sizeStockIndicator">
+                    <asp:Literal ID="litStockStatus" runat="server"></asp:Literal>
                 </div>
 
                 <div class="product-desc-text">
@@ -375,7 +468,7 @@
                 <div class="selector-row">
                     <div class="selector-field">
                         <label>Select Size</label>
-                        <asp:DropDownList ID="ddlSize" runat="server" CssClass="size-dropdown">
+                        <asp:DropDownList ID="ddlSize" runat="server" CssClass="size-dropdown" onchange="onSizeChanged()">
                             <asp:ListItem Text="S - Small" Value="S"></asp:ListItem>
                             <asp:ListItem Text="M - Medium" Value="M" Selected="True"></asp:ListItem>
                             <asp:ListItem Text="L - Large" Value="L"></asp:ListItem>
@@ -387,9 +480,9 @@
                     <div class="selector-field">
                         <label>Quantity</label>
                         <div class="qty-stepper">
-                            <button type="button" class="qty-btn" onclick="var q=document.getElementById('<%= txtQuantity.ClientID %>'); if(parseInt(q.value)>1) q.value=parseInt(q.value)-1;">-</button>
-                            <asp:TextBox ID="txtQuantity" runat="server" Text="1" CssClass="qty-box"></asp:TextBox>
-                            <button type="button" class="qty-btn" onclick="var q=document.getElementById('<%= txtQuantity.ClientID %>'); if(parseInt(q.value)<10) q.value=parseInt(q.value)+1;">+</button>
+                            <button type="button" class="qty-btn" onclick="stepProductQty(-1);">-</button>
+                            <asp:TextBox ID="txtQuantity" runat="server" Text="1" CssClass="qty-box" onchange="validateProductQty();" onkeyup="validateProductQty();"></asp:TextBox>
+                            <button type="button" class="qty-btn" onclick="stepProductQty(1);">+</button>
                         </div>
                     </div>
                 </div>
@@ -398,7 +491,11 @@
                 <div class="btn-action-row">
                     <asp:Button ID="btnAddToCart" runat="server" Text="Add to Cart" CssClass="btn-add-cart" OnClick="btnAddToCart_Click" />
                     <asp:Button ID="btnBuyNow" runat="server" Text="Buy Now" CssClass="btn-buy-now" OnClick="btnBuyNow_Click" />
+                    <asp:LinkButton ID="btnAddToWishlist" runat="server" CssClass="btn-add-wishlist" OnClick="btnAddToWishlist_Click" ToolTip="Save to Wishlist">
+                        <i class="fa-solid fa-heart"></i> Wishlist
+                    </asp:LinkButton>
                 </div>
+                <asp:Label ID="lblWishlistStatus" runat="server" Visible="false" Style="display:block; padding:10px 14px; border-radius:8px; margin-bottom:15px; font-weight:600; font-size:13.5px;"></asp:Label>
 
                 <!-- HIGHLIGHTS -->
                 <div class="product-highlights">
@@ -411,5 +508,126 @@
                 </div>
             </div>
         </div>
+
+        <!-- REAL CUSTOMER REVIEWS (PROBLEM 1) -->
+        <asp:Panel ID="pnlReviewsSection" runat="server" CssClass="reviews-section-card">
+            <h3 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-comments" style="color: #1967d2;"></i> Verified Customer Reviews
+            </h3>
+            <asp:Repeater ID="rptProductReviews" runat="server">
+                <ItemTemplate>
+                    <div style="border-bottom: 1px solid #f1f5f9; padding: 16px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-weight: 700; color: #1e293b; font-size: 14.5px;">
+                                <i class="fa-solid fa-circle-user" style="color: #64748b;"></i> <%# Eval("customer_name") %>
+                            </span>
+                            <span style="font-size: 12px; color: #94a3b8;">
+                                <%# Eval("created_at", "{0:dd MMM yyyy}") %>
+                            </span>
+                        </div>
+                        <div style="color: #f59e0b; font-size: 13px; margin-bottom: 8px;">
+                            <%# GetStarsHtml(Eval("rating")) %>
+                        </div>
+                        <div style="color: #475569; font-size: 14px; line-height: 1.5;">
+                            <%# Eval("comment") %>
+                        </div>
+                    </div>
+                </ItemTemplate>
+            </asp:Repeater>
+        </asp:Panel>
     </div>
+
+    <script>
+        var productSizeStocks = {
+            'S': <%= SizeStockS %>,
+            'M': <%= SizeStockM %>,
+            'L': <%= SizeStockL %>,
+            'XL': <%= SizeStockXL %>,
+            'XXL': <%= SizeStockXXL %>
+        };
+
+        function onSizeChanged() {
+            var ddl = document.getElementById('<%= ddlSize.ClientID %>');
+            if (!ddl) return;
+            var size = ddl.value;
+            var avail = productSizeStocks[size] !== undefined ? productSizeStocks[size] : 0;
+            var indicator = document.getElementById('sizeStockIndicator');
+            var btnAdd = document.getElementById('<%= btnAddToCart.ClientID %>');
+            var btnBuy = document.getElementById('<%= btnBuyNow.ClientID %>');
+            var txtQty = document.getElementById('<%= txtQuantity.ClientID %>');
+
+            if (indicator) {
+                if (avail <= 0) {
+                    indicator.innerHTML = '<span style="color:#ef4444; font-weight:700;"><i class="fa-solid fa-circle-xmark"></i> Size ' + size + ' is Out of Stock</span>';
+                    if (btnAdd) { btnAdd.disabled = true; btnAdd.classList.add('disabled'); btnAdd.value = 'Out of Stock'; }
+                    if (btnBuy) { btnBuy.disabled = true; btnBuy.classList.add('disabled'); btnBuy.value = 'Out of Stock'; }
+                    if (txtQty) { txtQty.value = 0; }
+                } else {
+                    indicator.innerHTML = '<span style="color:#16a34a; font-weight:700;"><i class="fa-solid fa-circle-check"></i> In Stock (' + avail + ' units available in Size ' + size + ')</span>';
+                    if (btnAdd) { btnAdd.disabled = false; btnAdd.classList.remove('disabled'); btnAdd.value = 'Add to Cart'; }
+                    if (btnBuy) { btnBuy.disabled = false; btnBuy.classList.remove('disabled'); btnBuy.value = 'Buy Now'; }
+                    if (txtQty) {
+                        var cur = parseInt(txtQty.value, 10) || 1;
+                        if (cur < 1) cur = 1;
+                        if (cur > avail) cur = avail;
+                        txtQty.value = cur;
+                    }
+                }
+            }
+        }
+
+        function stepProductQty(delta) {
+            var ddl = document.getElementById('<%= ddlSize.ClientID %>');
+            var size = ddl ? ddl.value : 'M';
+            var maxStock = productSizeStocks[size] !== undefined ? productSizeStocks[size] : 0;
+            var q = document.getElementById('<%= txtQuantity.ClientID %>');
+            if (!q) return;
+            if (maxStock <= 0) {
+                q.value = 0;
+                return;
+            }
+            var val = (parseInt(q.value, 10) || 1) + delta;
+            if (val < 1) val = 1;
+            if (val > maxStock) {
+                val = maxStock;
+                alert('Only ' + maxStock + ' unit(s) available in stock for Size ' + size + '!');
+            }
+            q.value = val;
+        }
+
+        function validateProductQty() {
+            var ddl = document.getElementById('<%= ddlSize.ClientID %>');
+            var size = ddl ? ddl.value : 'M';
+            var maxStock = productSizeStocks[size] !== undefined ? productSizeStocks[size] : 0;
+            var q = document.getElementById('<%= txtQuantity.ClientID %>');
+            if (!q) return;
+            if (maxStock <= 0) {
+                q.value = 0;
+                return;
+            }
+            var val = parseInt(q.value, 10) || 1;
+            if (val < 1) val = 1;
+            if (val > maxStock) {
+                val = maxStock;
+                alert('Maximum available stock for Size ' + size + ' is ' + maxStock + ' units.');
+            }
+            q.value = val;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            onSizeChanged();
+        });
+
+        function switchMainImage(src, elem) {
+            var mainImg = document.getElementById('imgProduct');
+            if (mainImg) {
+                mainImg.style.opacity = '0.4';
+                mainImg.src = src;
+                setTimeout(function () { mainImg.style.opacity = '1'; }, 100);
+            }
+            var thumbs = document.querySelectorAll('.thumb-item');
+            thumbs.forEach(function (t) { t.classList.remove('active'); });
+            if (elem) elem.classList.add('active');
+        }
+    </script>
 </asp:Content>

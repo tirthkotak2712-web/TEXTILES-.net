@@ -230,6 +230,12 @@
                 <li><a href="About.aspx"><i class="fa-solid fa-circle-info"></i> About Us</a></li>
                 <li><a href="Contact.aspx"><i class="fa-solid fa-envelope"></i> Contact</a></li>
                 <li>
+                    <a href="wishlist.aspx">
+                        <i class="fa-solid fa-heart"></i> Wishlist
+                        <span class="nav-cart-badge"><%= WishlistCount %></span>
+                    </a>
+                </li>
+                <li>
                     <a href="cart.aspx">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
                         <span class="nav-cart-badge"><%= CartCount %></span>

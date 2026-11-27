@@ -49,7 +49,19 @@ namespace textiles
                     lblOrderStatus.Text = row["order_status"].ToString();
                     lblCustomerName.Text = row["customer_name"].ToString();
                     lblCustomerEmail.Text = row["user_email"].ToString();
-                    lblPaymentMethod.Text = row["payment_method"].ToString() == "Online" ? "Online Payment (UPI/Card)" : "Cash on Delivery (COD)";
+                    string pm = row["payment_method"] != null ? row["payment_method"].ToString() : "";
+                    if (pm.IndexOf("Razorpay", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        lblPaymentMethod.Text = pm;
+                    }
+                    else if (pm.Equals("Online", StringComparison.OrdinalIgnoreCase))
+                    {
+                        lblPaymentMethod.Text = "Razorpay Online (UPI/Card)";
+                    }
+                    else
+                    {
+                        lblPaymentMethod.Text = "Cash on Delivery (COD)";
+                    }
                     return;
                 }
             }
@@ -64,11 +76,11 @@ namespace textiles
         {
             lblOrderNumber.Text = "ORD-FWQ3H";
             lblOrderDate.Text = DateTime.Now.ToString("dd MMM yyyy, hh:mm tt");
-            lblTotalAmount.Text = "730";
+            lblTotalAmount.Text = Session["LastOrderAmount"] != null ? Session["LastOrderAmount"].ToString() : "0";
             lblOrderStatus.Text = "Processing";
             lblCustomerName.Text = Session["LastCustomerName"] != null ? Session["LastCustomerName"].ToString() : "Tirth Kotak";
             lblCustomerEmail.Text = Session["LastCustomerEmail"] != null ? Session["LastCustomerEmail"].ToString() : "tirth@gmail.com";
-            lblPaymentMethod.Text = "Cash on Delivery (COD)";
+            lblPaymentMethod.Text = Session["LastPaymentMethod"] != null ? Session["LastPaymentMethod"].ToString() : "Razorpay Online (rzp_test_Sbg2bjqaiLOm9d)";
         }
     }
 }

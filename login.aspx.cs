@@ -46,6 +46,20 @@ namespace textiles
                     Session["UserName"] = row["name"].ToString();
                     Session["UserRole"] = row["role"].ToString();
 
+                    // Migrate guest cart to logged in user
+                    try
+                    {
+                        DbHelper.ExecuteNonQuery("UPDATE cart SET user_email=@email WHERE user_email='guest@textiles.com'", new SqlParameter("@email", row["email"].ToString()));
+                    }
+                    catch { }
+
+                    string returnUrl = Request.QueryString["returnUrl"];
+                    if (!string.IsNullOrEmpty(returnUrl))
+                    {
+                        Response.Redirect(returnUrl);
+                        return;
+                    }
+
                     if (row["role"].ToString().ToLower() == "admin")
                     {
                         Response.Redirect("admin.aspx");
@@ -69,6 +83,13 @@ namespace textiles
                     Session["UserEmail"] = row["email"].ToString();
                     Session["UserName"] = row["username"].ToString();
                     Session["UserRole"] = "admin";
+
+                    string returnUrl = Request.QueryString["returnUrl"];
+                    if (!string.IsNullOrEmpty(returnUrl))
+                    {
+                        Response.Redirect(returnUrl);
+                        return;
+                    }
 
                     Response.Redirect("admin.aspx");
                     return;

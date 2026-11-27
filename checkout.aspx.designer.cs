@@ -177,6 +177,21 @@ namespace textiles
         protected global::System.Web.UI.WebControls.RadioButtonList rblPaymentMethod;
 
         /// <summary>
+        /// hdnRazorpayPaymentId control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HiddenField hdnRazorpayPaymentId;
+
+        /// <summary>
+        /// hdnRazorpayOrderId control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HiddenField hdnRazorpayOrderId;
+
+        /// <summary>
+        /// hdnRazorpaySignature control.
+        /// </summary>
+        protected global::System.Web.UI.WebControls.HiddenField hdnRazorpaySignature;
+
+        /// <summary>
         /// rptCheckoutItems control.
         /// </summary>
         /// <remarks>
