@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -16,6 +16,20 @@ namespace textiles
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+            DbHelper.EnsureDatabaseSchemaAndSeed();
+        }
+
+        void Application_Error(object sender, EventArgs e)
+        {
+            Exception ex = Server.GetLastError();
+            if (ex is HttpException httpEx)
+            {
+                if (httpEx.Message.IndexOf("Maximum request length", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    Server.ClearError();
+                    Response.Redirect("~/admin.aspx");
+                }
+            }
         }
     }
 }

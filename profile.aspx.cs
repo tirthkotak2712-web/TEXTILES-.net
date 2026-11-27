@@ -7,6 +7,51 @@ namespace textiles
 {
     public partial class profile : Page
     {
+        public string CleanJs(object val)
+        {
+            if (val == null || val == DBNull.Value) return "";
+            return val.ToString()
+                      .Replace("\\", "\\\\")
+                      .Replace("'", "\\'")
+                      .Replace("\"", "&quot;")
+                      .Replace("\r", "")
+                      .Replace("\n", " ");
+        }
+
+        public bool IsOrderDelivered(object statusVal)
+        {
+            if (statusVal == null || statusVal == DBNull.Value) return false;
+            string s = statusVal.ToString().Trim();
+            return s.Equals("Delivered", StringComparison.OrdinalIgnoreCase) ||
+                   s.Equals("Completed", StringComparison.OrdinalIgnoreCase);
+        }
+
+        public string GetReturnButtonOrBadge(object orderNumberObj, object orderIdObj, object prodNamesObj, object totalAmountObj, object statusVal, object returnStatusVal)
+        {
+            if (!IsOrderDelivered(statusVal)) return "";
+            string retStatus = returnStatusVal != null && returnStatusVal != DBNull.Value ? returnStatusVal.ToString().Trim() : "None";
+            if (string.IsNullOrEmpty(retStatus)) retStatus = "None";
+
+            string ordNum = orderNumberObj != null ? orderNumberObj.ToString() : "";
+            string ordId = orderIdObj != null ? orderIdObj.ToString() : "0";
+            string prods = prodNamesObj != null ? CleanJs(prodNamesObj) : "Garment Item";
+            string amount = totalAmountObj != null ? String.Format("{0:N0}", totalAmountObj) : "0";
+
+            switch (retStatus.ToLower())
+            {
+                case "pending":
+                    return "<span class=\"badge-return return-pending\" title=\"Return request submitted & under review\"><i class=\"fa-solid fa-clock-rotate-left\"></i> Return Pending</span>";
+                case "approved":
+                    return "<span class=\"badge-return return-approved\" title=\"Return approved by store administration\"><i class=\"fa-solid fa-circle-check\"></i> Return Approved</span>";
+                case "rejected":
+                    return "<span class=\"badge-return return-rejected\" title=\"Return request rejected\"><i class=\"fa-solid fa-circle-xmark\"></i> Return Rejected</span>";
+                case "completed":
+                    return "<span class=\"badge-return return-completed\" title=\"Returned & refunded successfully\"><i class=\"fa-solid fa-box-archive\"></i> Returned &amp; Refunded</span>";
+                default:
+                    return $"<button type=\"button\" class=\"btn-return-order\" onclick=\"openReturnModal('{ordNum}', '{ordId}', '{prods}', '{amount}')\"><i class=\"fa-solid fa-rotate-left\"></i> Return</button>";
+            }
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (Session["UserEmail"] == null)
@@ -81,7 +126,7 @@ namespace textiles
 
             try
             {
-                string sql = "SELECT id, order_number, created_at, customer_name, total_amount, payment_method, order_status FROM orders WHERE user_email=@email ORDER BY id DESC";
+                string sql = "SELECT id, order_number, created_at, customer_name, total_amount, payment_method, order_status, ISNULL(return_status, 'None') as return_status FROM orders WHERE user_email=@email ORDER BY id DESC";
                 DataTable dt = DbHelper.ExecuteDataTable(sql, new SqlParameter("@email", email));
 
                 if (dt != null && dt.Rows.Count > 0)
@@ -91,15 +136,43 @@ namespace textiles
                     int processing = 0;
                     decimal totalSpent = 0;
 
+                    if (!dt.Columns.Contains("product_names"))
+                    {
+                        dt.Columns.Add("product_names", typeof(string));
+                    }
+
                     foreach (DataRow row in dt.Rows)
                     {
                         string status = row["order_status"].ToString();
-                        if (status.Equals("Delivered", StringComparison.OrdinalIgnoreCase)) delivered++;
+                        if (IsOrderDelivered(status)) delivered++;
                         else if (status.Equals("Processing", StringComparison.OrdinalIgnoreCase)) processing++;
 
                         if (row["total_amount"] != DBNull.Value)
                         {
                             totalSpent += Convert.ToDecimal(row["total_amount"]);
+                        }
+
+                        // Query order items for this order
+                        int orderId = Convert.ToInt32(row["id"]);
+                        try
+                        {
+                            string itemSql = "SELECT product_name FROM order_items WHERE order_id=@oid";
+                            DataTable dtItems = DbHelper.ExecuteDataTable(itemSql, new SqlParameter("@oid", orderId));
+                            System.Collections.Generic.List<string> pnames = new System.Collections.Generic.List<string>();
+                            if (dtItems != null && dtItems.Rows.Count > 0)
+                            {
+                                foreach (DataRow ir in dtItems.Rows)
+                                {
+                                    string pn = ir["product_name"].ToString();
+                                    if (!pnames.Contains(pn)) pnames.Add(pn);
+                                }
+                            }
+                            if (pnames.Count == 0) pnames.Add("Garment Item");
+                            row["product_names"] = string.Join(" | ", pnames);
+                        }
+                        catch
+                        {
+                            row["product_names"] = "Garment Item";
                         }
                     }
 
@@ -258,6 +331,128 @@ namespace textiles
             Session.Clear();
             Session.Abandon();
             Response.Redirect("login.aspx");
+        }
+
+        protected void btnSubmitRating_Click(object sender, EventArgs e)
+        {
+            hfActiveTab.Value = "orders";
+            string customerName = Session["UserName"] != null ? Session["UserName"].ToString() : "Customer";
+            string pName = (hfRateProductName != null && !string.IsNullOrWhiteSpace(hfRateProductName.Value))
+                ? hfRateProductName.Value.Trim()
+                : (Request.Form["rateProductSelect"] ?? "Garment Product");
+            if (string.IsNullOrEmpty(pName) || pName == "Select Product")
+            {
+                pName = "Garment Product";
+            }
+
+            decimal rating = 5.0m;
+            decimal.TryParse(hfRatingScore.Value, out rating);
+            if (rating < 1.0m || rating > 5.0m) rating = 5.0m;
+
+            string comment = txtRateComment.Text.Trim();
+            if (string.IsNullOrEmpty(comment))
+            {
+                comment = "Great fabric quality and comfortable fit!";
+            }
+
+            try
+            {
+                object pidObj = DbHelper.ExecuteScalar("SELECT TOP 1 id FROM products WHERE name=@pname", new SqlParameter("@pname", pName));
+                int prodId = (pidObj != null && pidObj != DBNull.Value) ? Convert.ToInt32(pidObj) : 0;
+
+                string insertReviewSql = @"INSERT INTO reviews (product_id, product_name, customer_name, rating, comment, status, created_at)
+                                           VALUES (@pid, @pname, @cname, @rating, @comment, 'Approved', GETDATE())";
+                DbHelper.ExecuteNonQuery(insertReviewSql,
+                    new SqlParameter("@pid", prodId > 0 ? (object)prodId : DBNull.Value),
+                    new SqlParameter("@pname", pName),
+                    new SqlParameter("@cname", customerName),
+                    new SqlParameter("@rating", rating),
+                    new SqlParameter("@comment", comment));
+
+                // Sync average rating into products table
+                DbHelper.ExecuteNonQuery(@"
+                    UPDATE products 
+                    SET rating = ISNULL((SELECT ROUND(AVG(CAST(r.rating AS DECIMAL(3,1))), 1) FROM reviews r WHERE r.product_name = @pname OR (r.product_id IS NOT NULL AND r.product_id = products.id)), rating)
+                    WHERE name = @pname OR id = @pid",
+                    new SqlParameter("@pname", pName),
+                    new SqlParameter("@pid", prodId));
+
+                txtRateComment.Text = "";
+                hfRatingScore.Value = "5";
+
+                ShowAlert("Thank you! Your " + rating.ToString("0.0") + "-star review for \"" + Server.HtmlEncode(pName) + "\" has been recorded and submitted to store administration.", true);
+            }
+            catch (Exception ex)
+            {
+                ShowAlert("Error submitting review: " + ex.Message, false);
+            }
+        }
+
+        protected void btnSubmitReturnOrder_Click(object sender, EventArgs e)
+        {
+            if (Session["UserEmail"] == null)
+            {
+                Response.Redirect("login.aspx");
+                return;
+            }
+
+            string userEmail = Session["UserEmail"].ToString();
+            string orderNum = hfReturnOrderNumber.Value.Trim();
+            string orderIdStr = hfReturnOrderId.Value.Trim();
+            string prods = hfReturnProductNames.Value.Trim();
+            string amountStr = hfReturnTotalAmount.Value.Trim().Replace(",", "");
+            string reason = ddlReturnReason.SelectedValue;
+            string comments = txtReturnComments.Text.Trim();
+
+            if (string.IsNullOrEmpty(orderNum))
+            {
+                ShowAlert("Invalid Order reference for return request.", false);
+                return;
+            }
+
+            try
+            {
+                int orderId = 0;
+                int.TryParse(orderIdStr, out orderId);
+
+                decimal amount = 0m;
+                decimal.TryParse(amountStr, out amount);
+
+                string customerName = Session["UserName"] != null ? Session["UserName"].ToString() : "Customer";
+
+                // Insert into order_returns table
+                string insertSql = @"
+                    INSERT INTO order_returns 
+                    (order_id, order_number, user_email, customer_name, product_names, total_amount, reason, comments, return_status, refund_amount, requested_at)
+                    VALUES 
+                    (@oid, @ordNum, @email, @cname, @pnames, @amount, @reason, @comments, 'Pending', @amount, GETDATE())";
+
+                DbHelper.ExecuteNonQuery(insertSql,
+                    new SqlParameter("@oid", orderId),
+                    new SqlParameter("@ordNum", orderNum),
+                    new SqlParameter("@email", userEmail),
+                    new SqlParameter("@cname", customerName),
+                    new SqlParameter("@pnames", prods),
+                    new SqlParameter("@amount", amount),
+                    new SqlParameter("@reason", reason),
+                    new SqlParameter("@comments", string.IsNullOrEmpty(comments) ? (object)DBNull.Value : comments));
+
+                // Update orders table return_status
+                DbHelper.ExecuteNonQuery("UPDATE orders SET return_status = 'Pending' WHERE order_number = @ordNum",
+                    new SqlParameter("@ordNum", orderNum));
+
+                txtReturnComments.Text = "";
+                hfReturnOrderNumber.Value = "";
+
+                // Reload orders to reflect updated status
+                LoadUserOrders();
+
+                ShowAlert("✓ Return request for Order #" + Server.HtmlEncode(orderNum) + " submitted successfully! Our administrative team will review your request.", true);
+            }
+            catch (Exception ex)
+            {
+                ShowAlert("Error submitting return request: " + ex.Message, false);
+            }
         }
 
         private void ShowAlert(string message, bool isSuccess)

@@ -8,7 +8,7 @@ namespace textiles
         public string OrderNumber = "ORD-FWQ3H";
         public string TxnId = "TXN-89421894";
         public string PaymentMethod = "Cash on Delivery (COD)";
-        public string Amount = "730";
+        public string Amount = "0";
         public string DateTimeStr = "";
 
         protected void Page_Load(object sender, EventArgs e)

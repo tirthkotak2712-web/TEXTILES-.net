@@ -7,6 +7,7 @@ namespace textiles
     public partial class SiteMaster : MasterPage
     {
         public int CartCount = 0;
+        public int WishlistCount = 0;
         public bool IsLoggedIn = false;
         public string UserName = "";
         public bool IsAdmin = false;
@@ -23,20 +24,42 @@ namespace textiles
                 }
             }
 
-            // Calculate cart item count
-            string userEmail = Session["UserEmail"] != null ? Session["UserEmail"].ToString() : "guest@textiles.com";
-            try
+            // Calculate cart and wishlist item count
+            if (Session["UserEmail"] != null)
             {
-                string sql = "SELECT ISNULL(SUM(quantity), 0) FROM cart WHERE user_email = @email";
-                object res = DbHelper.ExecuteScalar(sql, new SqlParameter("@email", userEmail));
-                if (res != null && res != DBNull.Value)
+                string userEmail = Session["UserEmail"].ToString();
+                try
                 {
-                    CartCount = Convert.ToInt32(res);
+                    string sql = "SELECT ISNULL(SUM(quantity), 0) FROM cart WHERE user_email = @email";
+                    object res = DbHelper.ExecuteScalar(sql, new SqlParameter("@email", userEmail));
+                    if (res != null && res != DBNull.Value)
+                    {
+                        CartCount = Convert.ToInt32(res);
+                    }
+                }
+                catch
+                {
+                    CartCount = 0;
+                }
+
+                try
+                {
+                    string sqlWish = "SELECT COUNT(*) FROM wishlist WHERE user_email = @email";
+                    object resWish = DbHelper.ExecuteScalar(sqlWish, new SqlParameter("@email", userEmail));
+                    if (resWish != null && resWish != DBNull.Value)
+                    {
+                        WishlistCount = Convert.ToInt32(resWish);
+                    }
+                }
+                catch
+                {
+                    WishlistCount = 0;
                 }
             }
-            catch
+            else
             {
                 CartCount = 0;
+                WishlistCount = 0;
             }
         }
     }

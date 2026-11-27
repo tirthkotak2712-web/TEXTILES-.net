@@ -6,6 +6,17 @@ namespace textiles
 {
     public partial class index : Page
     {
+        public string GetFirstImage(object val)
+        {
+            if (val == null || val == DBNull.Value) return "images/product_marble_tshirt.jpg";
+            string s = val.ToString().Trim();
+            if (string.IsNullOrEmpty(s)) return "images/product_marble_tshirt.jpg";
+            string[] parts = s.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length > 0 && !string.IsNullOrWhiteSpace(parts[0]))
+                return parts[0].Trim();
+            return s;
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -19,7 +30,13 @@ namespace textiles
             DataTable dt = null;
             try
             {
-                string sql = "SELECT id, name, category, price, original_price, rating, image_url, stock FROM products ORDER BY id ASC";
+                string sql = @"
+                    SELECT p.id, p.name, p.category, p.price, p.original_price,
+                           ISNULL((SELECT ROUND(AVG(CAST(r.rating AS DECIMAL(3,1))), 1) FROM reviews r WHERE r.product_name = p.name OR r.product_id = p.id), ISNULL(p.rating, 4.8)) as rating,
+                           p.image_url, p.stock 
+                    FROM products p 
+                    WHERE ISNULL(p.is_active, 1) = 1 AND p.stock > 0 
+                    ORDER BY p.id ASC";
                 dt = DbHelper.ExecuteDataTable(sql);
             }
             catch

@@ -17,11 +17,19 @@ namespace textiles
         protected global::System.Web.UI.WebControls.Label lblPrice;
         protected global::System.Web.UI.WebControls.Label lblOriginalPrice;
         protected global::System.Web.UI.WebControls.Label lblRating;
+        protected global::System.Web.UI.WebControls.Label lblReviewsCount;
+        protected global::System.Web.UI.WebControls.Literal litStockStatus;
         protected global::System.Web.UI.WebControls.Label lblDescription;
         protected global::System.Web.UI.WebControls.Image imgProduct;
+        protected global::System.Web.UI.HtmlControls.HtmlGenericControl thumbnailsContainer;
+        protected global::System.Web.UI.WebControls.Repeater rptThumbnails;
         protected global::System.Web.UI.WebControls.TextBox txtQuantity;
         protected global::System.Web.UI.WebControls.DropDownList ddlSize;
         protected global::System.Web.UI.WebControls.Button btnAddToCart;
         protected global::System.Web.UI.WebControls.Button btnBuyNow;
+        protected global::System.Web.UI.WebControls.LinkButton btnAddToWishlist;
+        protected global::System.Web.UI.WebControls.Label lblWishlistStatus;
+        protected global::System.Web.UI.WebControls.Panel pnlReviewsSection;
+        protected global::System.Web.UI.WebControls.Repeater rptProductReviews;
     }
 }

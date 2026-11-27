@@ -342,7 +342,7 @@
                                     <tr>
                                         <td>
                                             <div class="product-cell">
-                                                <img src='<%# Eval("image_url") %>' alt='<%# Eval("product_name") %>' class="cart-thumb" onerror="this.src='images/product_marble_tshirt.jpg'" />
+                                                <img src='<%# GetFirstImage(Eval("image_url")) %>' alt='<%# Eval("product_name") %>' class="cart-thumb" onerror="this.src='images/product_marble_tshirt.jpg'" />
                                                 <div class="cart-item-info">
                                                     <h4><%# Eval("product_name") %></h4>
                                                     <span class="cart-item-size">Size: <%# Eval("size") %></span>

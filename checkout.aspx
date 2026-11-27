@@ -150,6 +150,45 @@
             margin-top: 14px;
         }
 
+        /* Razorpay Visual Banner */
+        .razorpay-badge-box {
+            background: #f0f7ff;
+            border: 1.5px solid #90caf9;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 14px;
+        }
+
+        .rzp-pill {
+            background: #1565c0;
+            color: #ffffff;
+            font-size: 10.5px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .rzp-methods-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .rzp-tag {
+            background: #ffffff;
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #1e3a8a;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         /* ================= ORDER SUMMARY ================= */
         .order-summary-box {
             background: #ffffff;
@@ -448,15 +487,27 @@
                     </div>
                 </div>
 
-                <!-- PAYMENT METHOD (FIGMA FIGURE 8) -->
+                <!-- PAYMENT METHOD (CASH ON DELIVERY ONLY) -->
                 <div class="checkout-card">
-                    <h2><i class="fa-solid fa-credit-card" style="color: #1967d2;"></i> Payment Method</h2>
+                    <h2><i class="fa-solid fa-truck-fast" style="color: #1967d2;"></i> Payment Method</h2>
 
-                    <asp:RadioButtonList ID="rblPaymentMethod" runat="server" CssClass="payment-radio-list">
-                        <asp:ListItem Text="Cash on Delivery (COD)" Value="COD" Selected="True"></asp:ListItem>
-                    </asp:RadioButtonList>
-
-                    
+                    <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 18px 20px; display: flex; align-items: flex-start; gap: 14px;">
+                        <div style="background: #16a34a; color: #ffffff; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                                <strong style="font-size: 15px; color: #166534;"><i class="fa-solid fa-circle-check" style="color: #16a34a; margin-right: 5px;"></i> Cash on Delivery (COD) Only</strong>
+                                <span style="background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; border: 1px solid #bbf7d0;">DEFAULT</span>
+                            </div>
+                            <p style="font-size: 13.5px; color: #334155; margin: 0 0 8px 0; line-height: 1.45;">
+                                Pay conveniently with cash when your package arrives safely at your doorstep. No advance online payment or bank card required.
+                            </p>
+                            <span style="font-size: 12px; color: #15803d; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-shield-halved"></i> 100% Guaranteed Safe &amp; Verified Delivery
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -470,7 +521,7 @@
                         <ItemTemplate>
                             <div class="summary-item-row">
                                 <div class="summary-item-left">
-                                    <img src='<%# Eval("image_url") %>' alt='<%# Eval("product_name") %>' class="summary-thumb" onerror="this.src='images/product_marble_tshirt.jpg'" />
+                                    <img src='<%# GetFirstImage(Eval("image_url")) %>' alt='<%# Eval("product_name") %>' class="summary-thumb" onerror="this.src='images/product_marble_tshirt.jpg'" />
                                     <div class="summary-item-meta">
                                         <h5><%# Eval("product_name") %></h5>
                                         <span>Size: <%# Eval("size") %> &bull; Qty: <%# Eval("quantity") %></span>
@@ -498,20 +549,20 @@
                 </div>
                 <div class="breakdown-row discount-text">
                     <span>Coupon Discount</span>
-                    <span>- &#8377; <asp:Label ID="lblDiscount" runat="server">79</asp:Label></span>
+                    <span>- &#8377; <asp:Label ID="lblDiscount" runat="server">0</asp:Label></span>
                 </div>
                 <div class="breakdown-row">
                     <span>Estimated Tax (5% GST)</span>
-                    <span>&#8377; <asp:Label ID="lblTax" runat="server">10</asp:Label></span>
+                    <span>&#8377; <asp:Label ID="lblTax" runat="server">40</asp:Label></span>
                 </div>
                 <div class="breakdown-row total-bold">
-                    <span>Total Payable</span>
-                    <span class="final-total-amount">&#8377; <asp:Label ID="lblTotal" runat="server">730</asp:Label></span>
+                    <span>Total Payable (COD)</span>
+                    <span class="final-total-amount">&#8377; <asp:Label ID="lblTotal" runat="server">839</asp:Label></span>
                 </div>
 
-                <!-- PLACE ORDER BUTTON -->
+                <!-- PLACE ORDER (CASH ON DELIVERY) BUTTON -->
                 <asp:Button ID="btnPlaceOrder" runat="server" 
-                    Text="Place Order — Pay &#8377;730 on Delivery" 
+                    Text="Place Order — Cash on Delivery" 
                     CssClass="btn-place-order-large" 
                     OnClick="btnPlaceOrder_Click" 
                     ValidationGroup="CheckoutGroup" />
