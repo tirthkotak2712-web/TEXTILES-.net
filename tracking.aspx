@@ -307,46 +307,46 @@
                 </h2>
 
                 <div class="stepper-track">
-                    <div class="step-node <%= StepIndex >= 1 ? "completed" : "" %>">
-                        <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                    <div class="step-node <%= StepIndex > 1 ? "completed" : (StepIndex == 1 ? "active" : "") %>">
+                        <div class="step-circle"><i class="fa-solid <%= StepIndex > 1 ? "fa-check" : "fa-cart-shopping" %>"></i></div>
                         <span class="step-label">Order Placed</span>
-                        <span class="step-time">01 Mar, 10:30 AM</span>
+                        <span class="step-time"><%= Step1Time %></span>
                     </div>
 
-                    <div class="step-node <%= StepIndex >= 2 ? "completed" : "" %>">
-                        <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                    <div class="step-node <%= StepIndex > 2 ? "completed" : (StepIndex == 2 ? "active" : "") %>">
+                        <div class="step-circle"><i class="fa-solid <%= StepIndex > 2 ? "fa-check" : "fa-file-invoice-dollar" %>"></i></div>
                         <span class="step-label">Payment Confirmed</span>
-                        <span class="step-time">01 Mar, 10:35 AM</span>
+                        <span class="step-time"><%= Step2Time %></span>
                     </div>
 
-                    <div class="step-node <%= StepIndex >= 3 ? "completed" : "" %>">
-                        <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                    <div class="step-node <%= StepIndex > 3 ? "completed" : (StepIndex == 3 ? "active" : "") %>">
+                        <div class="step-circle"><i class="fa-solid <%= StepIndex > 3 ? "fa-check" : "fa-gears" %>"></i></div>
                         <span class="step-label">Processing</span>
-                        <span class="step-time">01 Mar, 02:15 PM</span>
+                        <span class="step-time"><%= Step3Time %></span>
                     </div>
 
-                    <div class="step-node <%= StepIndex >= 4 ? "completed" : "" %>">
-                        <div class="step-circle"><i class="fa-solid fa-check"></i></div>
+                    <div class="step-node <%= StepIndex > 4 ? "completed" : (StepIndex == 4 ? "active" : "") %>">
+                        <div class="step-circle"><i class="fa-solid <%= StepIndex > 4 ? "fa-check" : "fa-box-open" %>"></i></div>
                         <span class="step-label">Packed</span>
-                        <span class="step-time">02 Mar, 09:40 AM</span>
+                        <span class="step-time"><%= Step4Time %></span>
                     </div>
 
-                    <div class="step-node <%= StepIndex == 5 ? "active" : (StepIndex > 5 ? "completed" : "") %>">
-                        <div class="step-circle"><i class="fa-solid fa-truck"></i></div>
+                    <div class="step-node <%= StepIndex > 5 ? "completed" : (StepIndex == 5 ? "active" : "") %>">
+                        <div class="step-circle"><i class="fa-solid <%= StepIndex > 5 ? "fa-check" : "fa-truck-fast" %>"></i></div>
                         <span class="step-label">Shipped</span>
-                        <span class="step-time">In Transit</span>
+                        <span class="step-time"><%= Step5Time %></span>
                     </div>
 
-                    <div class="step-node <%= StepIndex == 6 ? "active" : (StepIndex > 6 ? "completed" : "") %>">
-                        <div class="step-circle"><i class="fa-solid fa-motorcycle"></i></div>
+                    <div class="step-node <%= StepIndex > 6 ? "completed" : (StepIndex == 6 ? "active" : "") %>">
+                        <div class="step-circle"><i class="fa-solid <%= StepIndex > 6 ? "fa-check" : "fa-motorcycle" %>"></i></div>
                         <span class="step-label">Out for Delivery</span>
-                        <span class="step-time">Expected 04 Mar</span>
+                        <span class="step-time"><%= Step6Time %></span>
                     </div>
 
                     <div class="step-node <%= StepIndex >= 7 ? "completed" : "" %>">
                         <div class="step-circle"><i class="fa-solid fa-house-chimney"></i></div>
                         <span class="step-label">Delivered</span>
-                        <span class="step-time">Pending</span>
+                        <span class="step-time"><%= Step7Time %></span>
                     </div>
                 </div>
             </div>

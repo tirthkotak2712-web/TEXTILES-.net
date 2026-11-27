@@ -112,6 +112,47 @@ BEGIN
     );
 END;
 
+-- 8. WISHLIST TABLE
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'wishlist')
+BEGIN
+    CREATE TABLE wishlist (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        user_email NVARCHAR(100) NOT NULL,
+        product_id INT NOT NULL,
+        product_name NVARCHAR(150),
+        price DECIMAL(10,2),
+        image_url NVARCHAR(MAX),
+        added_at DATETIME DEFAULT GETDATE(),
+        CONSTRAINT UQ_wishlist_user_product UNIQUE(user_email, product_id)
+    );
+END;
+
+-- 9. ORDER RETURNS TABLE
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'order_returns')
+BEGIN
+    CREATE TABLE order_returns (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        order_id INT NOT NULL,
+        order_number NVARCHAR(50) NOT NULL,
+        user_email NVARCHAR(100) NOT NULL,
+        customer_name NVARCHAR(100) NOT NULL,
+        product_names NVARCHAR(MAX),
+        total_amount DECIMAL(10,2) NOT NULL,
+        reason NVARCHAR(200) NOT NULL,
+        comments NVARCHAR(MAX),
+        return_status NVARCHAR(50) DEFAULT 'Pending',
+        refund_amount DECIMAL(10,2) DEFAULT 0.00,
+        requested_at DATETIME DEFAULT GETDATE(),
+        processed_at DATETIME NULL,
+        admin_notes NVARCHAR(MAX) NULL
+    );
+END;
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('orders') AND name = 'return_status')
+BEGIN
+    ALTER TABLE orders ADD return_status NVARCHAR(50) NOT NULL DEFAULT 'None';
+END;
+
 -- =======================================================
 -- SEED DEFAULT ADMIN & TEST USER DATA & PRODUCTS
 -- =======================================================

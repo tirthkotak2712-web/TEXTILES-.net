@@ -10,6 +10,17 @@ namespace textiles
     {
         public int ProductCount = 0;
 
+        public string GetFirstImage(object val)
+        {
+            if (val == null || val == DBNull.Value) return "images/product_marble_tshirt.jpg";
+            string s = val.ToString().Trim();
+            if (string.IsNullOrEmpty(s)) return "images/product_marble_tshirt.jpg";
+            string[] parts = s.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length > 0 && !string.IsNullOrWhiteSpace(parts[0]))
+                return parts[0].Trim();
+            return s;
+        }
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
@@ -42,28 +53,33 @@ namespace textiles
 
             try
             {
-                string sql = "SELECT id, name, category, price, original_price, rating, image_url, description, stock FROM products WHERE 1=1";
+                string sql = @"
+                    SELECT p.id, p.name, p.category, p.price, p.original_price, 
+                           ISNULL((SELECT ROUND(AVG(CAST(r.rating AS DECIMAL(3,1))), 1) FROM reviews r WHERE r.product_name = p.name OR r.product_id = p.id), ISNULL(p.rating, 4.8)) as rating, 
+                           p.image_url, p.description, p.stock 
+                    FROM products p 
+                    WHERE ISNULL(p.is_active, 1) = 1 AND p.stock > 0";
                 var parameters = new List<SqlParameter>();
 
                 if (!string.IsNullOrWhiteSpace(query))
                 {
-                    sql += " AND (name LIKE @q OR description LIKE @q OR category LIKE @q)";
+                    sql += " AND (p.name LIKE @q OR p.description LIKE @q OR p.category LIKE @q)";
                     parameters.Add(new SqlParameter("@q", "%" + query + "%"));
                 }
 
                 if (!string.IsNullOrWhiteSpace(category) && category != "All")
                 {
-                    sql += " AND category = @category";
+                    sql += " AND p.category = @category";
                     parameters.Add(new SqlParameter("@category", category));
                 }
 
                 if (sort == "price_asc")
                 {
-                    sql += " ORDER BY price ASC";
+                    sql += " ORDER BY p.price ASC";
                 }
                 else if (sort == "price_desc")
                 {
-                    sql += " ORDER BY price DESC";
+                    sql += " ORDER BY p.price DESC";
                 }
                 else if (sort == "rating")
                 {
@@ -71,7 +87,7 @@ namespace textiles
                 }
                 else
                 {
-                    sql += " ORDER BY id ASC";
+                    sql += " ORDER BY p.id ASC";
                 }
 
                 dt = DbHelper.ExecuteDataTable(sql, parameters.ToArray());

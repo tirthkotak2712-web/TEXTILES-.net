@@ -263,6 +263,7 @@
     <Content Include="processing.aspx" />
     <Content Include="success.aspx" />
     <Content Include="tracking.aspx" />
+    <Content Include="wishlist.aspx" />
     <Content Include="ViewSwitcher.ascx" />
     <Content Include="Web.config" />
     <Content Include="Bundle.config" />
@@ -423,6 +424,13 @@
     </Compile>
     <Compile Include="tracking.aspx.designer.cs">
       <DependentUpon>tracking.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="wishlist.aspx.cs">
+      <DependentUpon>wishlist.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="wishlist.aspx.designer.cs">
+      <DependentUpon>wishlist.aspx</DependentUpon>
     </Compile>
     <Compile Include="ViewSwitcher.ascx.cs">
       <DependentUpon>ViewSwitcher.ascx</DependentUpon>

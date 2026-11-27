@@ -280,6 +280,31 @@
             border-radius: 6px;
         }
 
+        .product-wishlist-heart {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e11d48;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+        }
+
+        .product-wishlist-heart:hover {
+            background: #e11d48;
+            color: #ffffff;
+            transform: scale(1.12);
+        }
+
         .product-body {
             padding: 16px;
             display: flex;
@@ -335,40 +360,107 @@
             margin-top: auto;
         }
 
-        .btn-view-details {
+        /* Direct Size Selector on Product Card */
+        .card-size-wrapper {
+            margin-bottom: 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+
+        .card-size-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .card-size-label .active-size-tag {
+            color: #1967d2;
+            font-weight: 800;
+            font-size: 11.5px;
+        }
+
+        .card-size-chips {
+            display: flex;
+            gap: 4px;
+        }
+
+        .size-chip {
             flex: 1;
+            padding: 5px 0;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #334155;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s ease;
+        }
+
+        .size-chip:hover {
+            border-color: #1967d2;
+            color: #1967d2;
+        }
+
+        .size-chip.active {
             background: #1967d2;
+            border-color: #1967d2;
             color: #ffffff;
-            font-size: 13px;
+            box-shadow: 0 2px 6px rgba(25, 103, 210, 0.25);
+        }
+
+        .btn-view-details {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            font-size: 12.5px;
             font-weight: 600;
             text-align: center;
-            padding: 9px 0;
-            border-radius: 6px;
-            text-decoration: none;
-            transition: background 0.2s;
-        }
-
-        .btn-view-details:hover {
-            background: #1557b0;
-        }
-
-        .btn-add-cart-icon {
-            background: #f1f5f9;
-            color: #1967d2;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
             padding: 9px 12px;
+            border-radius: 6px;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 5px;
             transition: all 0.2s;
         }
 
-        .btn-add-cart-icon:hover {
+        .btn-view-details:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .btn-add-cart-action {
+            flex: 1;
             background: #1967d2;
             color: #ffffff;
-            border-color: #1967d2;
+            border: none;
+            border-radius: 6px;
+            padding: 9px 10px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(25, 103, 210, 0.15);
+        }
+
+        .btn-add-cart-action:hover {
+            background: #1557b0;
         }
 
         @media (max-width: 850px) {
@@ -446,7 +538,10 @@
                     <div class="product-card">
                         <div class="product-img-wrapper">
                             <span class="product-stock-pill"><i class="fa-solid fa-check"></i> In Stock</span>
-                            <img src='<%# Eval("image_url") %>' alt='<%# Eval("name") %>' onerror="this.src='images/product_marble_tshirt.jpg'" />
+                            <a href='<%# "wishlist.aspx?action=add&id=" + Eval("id") %>' class="product-wishlist-heart" title="Add to Wishlist">
+                                <i class="fa-regular fa-heart"></i>
+                            </a>
+                            <img src='<%# GetFirstImage(Eval("image_url")) %>' alt='<%# Eval("name") %>' onerror="this.src='images/product_marble_tshirt.jpg'" />
                         </div>
                         <div class="product-body">
                             <div class="product-category-name"><%# Eval("category") %></div>
@@ -455,12 +550,28 @@
                                 <span class="current-price">&#8377; <%# String.Format("{0:N0}", Eval("price")) %></span>
                                 <span class="original-price">&#8377; <%# String.Format("{0:N0}", Eval("original_price")) %></span>
                             </div>
+
+                            <!-- DIRECT SIZE SELECTOR ON CARD -->
+                            <div class="card-size-wrapper">
+                                <div class="card-size-label">
+                                    <span>Select Size</span>
+                                    <span class="active-size-tag" id='<%# "lblSize_" + Eval("id") %>'>Size: M</span>
+                                </div>
+                                <div class="card-size-chips" id='<%# "sizeGroup_" + Eval("id") %>'>
+                                    <button type="button" class="size-chip" onclick="selectCardSize(<%# Eval("id") %>, 'S', this)">S</button>
+                                    <button type="button" class="size-chip active" onclick="selectCardSize(<%# Eval("id") %>, 'M', this)">M</button>
+                                    <button type="button" class="size-chip" onclick="selectCardSize(<%# Eval("id") %>, 'L', this)">L</button>
+                                    <button type="button" class="size-chip" onclick="selectCardSize(<%# Eval("id") %>, 'XL', this)">XL</button>
+                                    <button type="button" class="size-chip" onclick="selectCardSize(<%# Eval("id") %>, 'XXL', this)">XXL</button>
+                                </div>
+                            </div>
+
                             <div class="product-card-actions">
-                                <a href='<%# "productdetails.aspx?id=" + Eval("id") %>' class="btn-view-details">
-                                    <i class="fa-solid fa-eye"></i> View Details
+                                <a href='<%# "productdetails.aspx?id=" + Eval("id") %>' class="btn-view-details" title="View Full Details">
+                                    <i class="fa-solid fa-eye"></i> Details
                                 </a>
-                                <a href='<%# "cart.aspx?action=add&id=" + Eval("id") %>' class="btn-add-cart-icon" title="Add to Cart">
-                                    <i class="fa-solid fa-cart-plus"></i>
+                                <a id='<%# "btnCart_" + Eval("id") %>' href='<%# "cart.aspx?action=add&id=" + Eval("id") + "&size=M" %>' class="btn-add-cart-action" title="Add Selected Size to Cart">
+                                    <i class="fa-solid fa-cart-plus"></i> Add to Cart
                                 </a>
                             </div>
                         </div>
@@ -469,4 +580,28 @@
             </asp:Repeater>
         </div>
     </div>
+
+    <script>
+        function selectCardSize(productId, size, btn) {
+            var group = document.getElementById('sizeGroup_' + productId);
+            if (group) {
+                var chips = group.querySelectorAll('.size-chip');
+                for (var i = 0; i < chips.length; i++) {
+                    chips[i].classList.remove('active');
+                }
+            }
+            btn.classList.add('active');
+
+            var tag = document.getElementById('lblSize_' + productId);
+            if (tag) {
+                tag.innerText = 'Size: ' + size;
+            }
+
+            var cartBtn = document.getElementById('btnCart_' + productId);
+            if (cartBtn) {
+                cartBtn.href = 'cart.aspx?action=add&id=' + productId + '&size=' + encodeURIComponent(size);
+                cartBtn.setAttribute('title', 'Add size ' + size + ' to Cart');
+            }
+        }
+    </script>
 </asp:Content>
